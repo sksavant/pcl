@@ -12,11 +12,26 @@
 #include <vtkWindowToImageFilter.h>
 #include <vtkDoubleArray.h>
 #include <vtkProperty2D.h>
+#include <vtkRendererSource.h>
+#include <vtkGraphicsFactory.h>
+#include <vtkImagingFactory.h>
+
 
 
 int main(){
     pcl::PointCloud<pcl::FPFHSignature33>::Ptr fpfhs_gt(new pcl::PointCloud<pcl::FPFHSignature33>);
     pcl::io::loadPCDFile<pcl::FPFHSignature33>("fpfhs_cube1.pcd", *fpfhs_gt);
+
+  // Setup offscreen rendering
+  vtkSmartPointer<vtkGraphicsFactory> graphics_factory = 
+    vtkSmartPointer<vtkGraphicsFactory>::New();
+  graphics_factory->SetOffScreenOnlyMode( 1);
+  graphics_factory->SetUseMesaClasses( 1 );
+ 
+  vtkSmartPointer<vtkImagingFactory> imaging_factory = 
+    vtkSmartPointer<vtkImagingFactory>::New();
+  imaging_factory->SetUseMesaClasses( 1 ); 
+
 
     vtkSmartPointer<vtkDoubleArray> xy_array = vtkSmartPointer<vtkDoubleArray>::New();
     xy_array->SetNumberOfComponents(2);
@@ -82,8 +97,18 @@ int main(){
     renderer->AddActor2D(xy_plot);
     renderer->SetBackground(1,1,1); // Background color white
 
+    /*
+    vtkSmartPointer<vtkRendererSource> rendererSource = vtkSmartPointer<vtkRendererSource>::New();
+    rendererSource->SetInput(renderer);
+    rendererSource->Modify()
+    */
+
+    //vtkSmartPointer<vtkDataSetWriter>
+    //rendererSource->GetOutput()
+
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
+    renderWindow->SetOffScreenRendering( 1 );
     renderWindow->Render();
 
     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
@@ -95,6 +120,7 @@ int main(){
     vtkSmartPointer<vtkPNGWriter> writer = vtkSmartPointer<vtkPNGWriter>::New();
     writer->SetFileName("fpfhs_1.png");
     writer->SetInputConnection(windowToImageFilter->GetOutputPort());
+    //writer->SetInput(rendererSource->GetOutput());
     writer->Write();
     return 0;
 
