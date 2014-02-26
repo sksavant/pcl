@@ -64,7 +64,7 @@ namespace {
     graphics_factory->SetUseMesaClasses(1);
 
     vtkSmartPointer<vtkImagingFactory> imaging_factory = vtkSmartPointer<vtkImagingFactory>::New();
-    imaging_factory->SetUseMesaClasses(1); 
+    imaging_factory->SetUseMesaClasses(1);
 
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor2D(xy_plot);
@@ -112,7 +112,7 @@ namespace {
     xy_array->GetRange(min_max, 1);
 
     xy_plot->SetYTitle (""); xy_plot->SetXTitle ("");
-    xy_plot->SetYRange (min_max[0], min_max[1]); 
+    xy_plot->SetYRange (min_max[0], min_max[1]);
     xy_plot->SetXRange (0, static_cast<double> (xy_array->GetNumberOfTuples () - 1));
 
     //renwinint.xy_plot_->SetTitle (id.c_str ());

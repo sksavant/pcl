@@ -55,7 +55,7 @@ namespace pcl
     /** \brief Saves the histogram field from the point cloud as image to PNG file.
      * \param[in] file_name the name of the file to write to disk
      * \param[in] cloud histogram point cloud
-     * \param[in] hsize size of histogram vector
+     * \param[in] hsize length of histogram
      * \param[in] width histogram image output's width
      * \param[in] height histogram image output's height
      * \ingroup io
@@ -66,8 +66,8 @@ namespace pcl
     /** \brief Saves the histogram field from the point cloud as image to PNG file.
      * \param[in] file_name the name of the file to write to disk
      * \param[in] cloud histogram point cloud
-     * \param[in] field_name the name of the field to extract data from
-     * \param[in] index 
+     * \param[in] field_name the field name containing histogram
+     * \param[in] index point index to extract the histogram from
      * \param[in] width histogram image output's width
      * \param[in] height histogram image output's height
      * \ingroup io
