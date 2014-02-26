@@ -239,8 +239,11 @@ pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<pcl::P
 	saveShortPNGFile(file_name, &data[0], cloud.width, cloud.height,1);
 }
 
-template <typename PointT> void
-pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT>& cloud, const std::string& field_name, const int index, int width, int height)
+namespace pcl{
+    namespace io{
+        //template <typename HistT> void
+        void
+        savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const std::string& field_name, const int index, int width, int height)
 {
   if (index < 0 || index >= cloud.points.size ())
   {
@@ -250,7 +253,7 @@ pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT
 
   std::vector<pcl::PCLPointField> fields;
   // Check if our field exists
-  int field_idx = pcl::getFieldIndex<PointT> (cloud, field_name, fields);
+  int field_idx = pcl::getFieldIndex<HistT> (cloud, field_name, fields);
   if (field_idx == -1)
   {
     PCL_ERROR ("[pcl::io::savePNGFile] The specified field <%s> does not exist!\n", field_name.c_str ());
@@ -277,8 +280,9 @@ pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT
 
 }
 
-template <typename PointT> void
-pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT> &cloud, int hsize, int width, int height )
+        //template <typename HistT> void
+        void
+        savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const int hsize, int width, int height )
 {
   vtkSmartPointer<vtkDoubleArray> xy_array = vtkSmartPointer<vtkDoubleArray>::New ();
   xy_array->SetNumberOfComponents (2);
@@ -296,3 +300,5 @@ pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT
   saveHistPNGFile(file_name, xy_array, width, height);
 
 }
+};
+};

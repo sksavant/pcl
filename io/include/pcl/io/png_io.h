@@ -52,9 +52,33 @@ namespace pcl
 {
   namespace io
   {
+    /** \brief Saves the histogram field from the point cloud as image to PNG file.
+     * \param[in] file_name the name of the file to write to disk
+     * \param[in] cloud histogram point cloud
+     * \param[in] hsize size of histogram vector
+     * \param[in] width histogram image output's width
+     * \param[in] height histogram image output's height
+     * \ingroup io
+     */
+    //template <typename HistT> void
+    typedef pcl::FPFHSignature33 HistT;
+    void savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const int hsize, int width=640, int height=480);
+
+    /** \brief Saves the histogram field from the point cloud as image to PNG file.
+     * \param[in] file_name the name of the file to write to disk
+     * \param[in] cloud histogram point cloud
+     * \param[in] field_name the name of the field to extract data from
+     * \param[in] index 
+     * \param[in] width histogram image output's width
+     * \param[in] height histogram image output's height
+     * \ingroup io
+     */
+    //template <typename HistT> void
+    void savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const std::string& field_name, const int index, int width=640, int height=480);
+
     /** \brief Saves 8-bit encoded image to PNG file.
       * \param[in] file_name the name of the file to write to disk
-      * \param[in] mono_image image grayscale data
+      * \param[in] mono_image image grayscalea
       * \param[in] width image width
       * \param[in] height image height
       * \param[in] channels number of channels
@@ -122,6 +146,7 @@ namespace pcl
     template <typename T> void
     savePNGFile (const std::string& file_name, const pcl::PointCloud<T>& cloud)
     {
+      std::cerr << "SAVE PNG BOOO\n";
       std::vector<unsigned char> data(cloud.width * cloud.height * 3);
 
       for (size_t i = 0; i < cloud.points.size (); ++i)
@@ -146,29 +171,6 @@ namespace pcl
     PCL_EXPORTS void
     savePNGFile (const std::string& file_name, const pcl::PointCloud<pcl::PointXYZL>& cloud);
 
-    /** \brief Saves the histogram field from the point cloud as image to PNG file.
-     * \param[in] file_name the name of the file to write to disk
-     * \param[in] cloud histogram point cloud
-     * \param[in] hsize size of histogram vector
-     * \param[in] width histogram image output's width
-     * \param[in] height histogram image output's height
-     * \ingroup io
-     */
-    PCL_EXPORTS template <typename PointT> void
-    savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT>& cloud, int hsize, int width, int height);
-
-    /** \brief Saves the histogram field from the point cloud as image to PNG file.
-     * \param[in] file_name the name of the file to write to disk
-     * \param[in] cloud histogram point cloud
-     * \param[in] field_name the name of the field to extract data from
-     * \param[in] index 
-     * \param[in] width histogram image output's width
-     * \param[in] height histogram image output's height
-     * \ingroup io
-     */
-    PCL_EXPORTS template <typename PointT> void
-    savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT>& cloud, const std::string& field_name, const int index, int width, int height);
-
     /** \brief Saves the data from the specified field of the point cloud as image to PNG file.
      * \param[in] file_name the name of the file to write to disk
      * \param[in] cloud point cloud to save
@@ -178,6 +180,7 @@ namespace pcl
     template <typename PointT> void
     savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT>& cloud, const std::string& field_name)
     {
+      std::cerr << "FIELD BBOOO SAVE PNG BOOO\n";
       typedef typename PointCloudImageExtractor<PointT>::Ptr PointCloudImageExtractorPtr;
       PointCloudImageExtractorPtr pcie;
       if (field_name == "normal")
