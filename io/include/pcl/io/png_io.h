@@ -60,9 +60,8 @@ namespace pcl
      * \param[in] height histogram image output's height
      * \ingroup io
      */
-    //template <typename HistT> void
-    typedef pcl::FPFHSignature33 HistT;
-    void savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const int hsize, int width=640, int height=480);
+    PCL_EXPORTS template <typename HistT> void
+    savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const int hsize, int width=640, int height=480);
 
     /** \brief Saves the histogram field from the point cloud as image to PNG file.
      * \param[in] file_name the name of the file to write to disk
@@ -73,8 +72,8 @@ namespace pcl
      * \param[in] height histogram image output's height
      * \ingroup io
      */
-    //template <typename HistT> void
-    void savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const std::string& field_name, const int index, int width=640, int height=480);
+    PCL_EXPORTS template <typename HistT> void
+    savePNGFile (const std::string& file_name, const pcl::PointCloud<HistT>& cloud, const std::string& field_name, const int index, int width=640, int height=480);
 
     /** \brief Saves 8-bit encoded image to PNG file.
       * \param[in] file_name the name of the file to write to disk
@@ -146,7 +145,6 @@ namespace pcl
     template <typename T> void
     savePNGFile (const std::string& file_name, const pcl::PointCloud<T>& cloud)
     {
-      std::cerr << "SAVE PNG BOOO\n";
       std::vector<unsigned char> data(cloud.width * cloud.height * 3);
 
       for (size_t i = 0; i < cloud.points.size (); ++i)
@@ -180,7 +178,6 @@ namespace pcl
     template <typename PointT> void
     savePNGFile (const std::string& file_name, const pcl::PointCloud<PointT>& cloud, const std::string& field_name)
     {
-      std::cerr << "FIELD BBOOO SAVE PNG BOOO\n";
       typedef typename PointCloudImageExtractor<PointT>::Ptr PointCloudImageExtractorPtr;
       PointCloudImageExtractorPtr pcie;
       if (field_name == "normal")
@@ -225,5 +222,7 @@ namespace pcl
 
   }
 }
+
+#include <pcl/io/impl/png_io.hpp>
 
 #endif  //#ifndef PCL_IO_PNG_IO_H_
