@@ -77,7 +77,7 @@ namespace pcl
 
     /** \brief Saves 8-bit encoded image to PNG file.
       * \param[in] file_name the name of the file to write to disk
-      * \param[in] mono_image image grayscalea
+      * \param[in] mono_image image grayscale data
       * \param[in] width image width
       * \param[in] height image height
       * \param[in] channels number of channels

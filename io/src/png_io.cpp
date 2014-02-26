@@ -57,8 +57,9 @@ namespace
     writer->SetInputConnection(flipYFilter->GetOutputPort());
     writer->Write();
   }
-
 };
+
+
 
 
 void 
@@ -142,3 +143,4 @@ pcl::io::savePNGFile (const std::string& file_name, const pcl::PointCloud<pcl::P
 	}
 	saveShortPNGFile(file_name, &data[0], cloud.width, cloud.height,1);
 }
+
