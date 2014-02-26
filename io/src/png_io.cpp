@@ -71,7 +71,7 @@ namespace
     writer->Write();
   }
 
-  void renderAndWritePng(cosnt std::string& file_name, vtkSmartPointer<vtkXYPlotActor>& xy_plot, int width, int height)
+  void renderAndWritePng(const std::string& file_name, vtkSmartPointer<vtkXYPlotActor>& xy_plot, int width, int height)
   {
     // Setup offscreen rendering
     vtkSmartPointer<vtkGraphicsFactory> graphics_factory = vtkSmartPointer<vtkGraphicsFactory>::New();
@@ -88,7 +88,7 @@ namespace
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->AddRenderer(renderer);
     renderWindow->SetSize(width, height);
-    renderWindow->SetBorders(1)
+    renderWindow->SetBorders(1);
     renderWindow->SetOffScreenRendering(1);
     renderWindow->Render();
 
