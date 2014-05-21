@@ -157,6 +157,7 @@ if(build)
         src/transformation_estimation_point_to_plane_lls_weighted.cpp
         src/transformation_validation_euclidean.cpp
         src/sample_consensus_prerejective.cpp
+        src/dq_diffusion.cpp
         )
 
     set(LIB_NAME "pcl_${SUBSYS_NAME}")

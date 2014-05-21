@@ -108,4 +108,6 @@ pcl::registration::DQDiffusion<PointT>::getConcatenatedCloud () const
   return (out);
 }
 
+#define PCL_INSTANTIATE_DQ_DIFFUSION(T) template class PCL_EXPORTS pcl::registration::DQDiffusion<T>;
+
 #endif // PCL_REGISTRATION_IMPL_DQ_DIFFUSION_HPP_

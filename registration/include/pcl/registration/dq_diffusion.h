@@ -61,28 +61,32 @@ namespace pcl
     template<typename PointT>
     class DQDiffusion
     {
-      typedef boost::shared_ptr<DQDiffusion<PointT> > Ptr;
-      typedef boost::shared_ptr<const DQDiffusion<PointT> > ConstPtr;
-
-      struct VertexProperties
-      {
-        PointCloudPtr cloud_;
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-      };
-
-      struct EdgeProperties
-      {
-        // edge transformation dq
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-      };
-
-      typedef boost::adjacency_list<boost::eigen_vecS, boost::eigen_vecS, boost::undirectedS, VertexProperties, EdgeProperties, boost::no_property, boost::eigen_listS> ViewGraph;
-
-      typedef boost::shared_ptr<ViewGraph> ViewGraphPtr;
-      typedef typename ViewGraph::vertex_descriptor Vertex;
-      typedef typename ViewGraph::edge_descriptor Edge;
-
       public:
+        typedef boost::shared_ptr<DQDiffusion<PointT> > Ptr;
+        typedef boost::shared_ptr<const DQDiffusion<PointT> > ConstPtr;
+
+        typedef pcl::PointCloud<PointT> PointCloud;
+        typedef typename PointCloud::Ptr PointCloudPtr;
+        typedef typename PointCloud::ConstPtr PointCloudConstPtr;
+
+        struct VertexProperties
+        {
+          PointCloudPtr cloud_;
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        };
+
+        struct EdgeProperties
+        {
+          // edge transformation dq
+          EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        };
+
+        typedef boost::adjacency_list<boost::eigen_vecS, boost::eigen_vecS, boost::undirectedS, VertexProperties, EdgeProperties, boost::no_property, boost::eigen_listS> ViewGraph;
+
+        typedef boost::shared_ptr<ViewGraph> ViewGraphPtr;
+        typedef typename ViewGraph::vertex_descriptor Vertex;
+        typedef typename ViewGraph::edge_descriptor Edge;
+
         DQDiffusion ()
           : view_graph_ (new ViewGraph)
         {
@@ -91,7 +95,7 @@ namespace pcl
         inline ViewGraphPtr
         getViewGraph () const;
 
-        typename SLAMGraph::vertices_size_type
+        typename ViewGraph::vertices_size_type
         getNumVertices () const;
 
         Vertex
@@ -101,7 +105,7 @@ namespace pcl
         setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud);
 
         inline PointCloudPtr
-        getPointCloud (const Vertex &vertex);
+        getPointCloud (const Vertex &vertex) const;
 
         void
         compute ();
@@ -119,6 +123,8 @@ namespace pcl
   }
 }
 
+#ifdef PCL_NO_PRECOMPILE
 #include <pcl/registration/impl/dq_diffusion.hpp>
+#endif
 
 #endif // PCL_REGISTRATION_DQ_DIFFUSUION_H_
