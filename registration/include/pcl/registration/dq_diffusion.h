@@ -38,8 +38,8 @@
  *
  */
 
-#ifndef PCL_REGISTRATION_DQ_DIFFUSUION_H
-#define PCL_REGISTRATION_DQ_DIFFUSUION_H
+#ifndef PCL_REGISTRATION_DQ_DIFFUSUION_H_
+#define PCL_REGISTRATION_DQ_DIFFUSUION_H_
 
 #include <pcl/pcl_base.h> //Base?
 #include <pcl/registration/eigen.h> //Eigen includes
@@ -66,7 +66,7 @@ namespace pcl
 
       struct VertexProperties
       {
-        // vertex id?
+        PointCloudPtr cloud_;
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
       };
 
@@ -76,7 +76,7 @@ namespace pcl
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
       };
 
-      typedef boost::adjacency_list<boost::eigen_vecS, boost::eigen_vecS> ViewGraph;
+      typedef boost::adjacency_list<boost::eigen_vecS, boost::eigen_vecS, boost::undirectedS, VertexProperties, EdgeProperties, boost::no_property, boost::eigen_listS> ViewGraph;
 
       typedef boost::shared_ptr<ViewGraph> ViewGraphPtr;
       typedef typename ViewGraph::vertex_descriptor Vertex;
@@ -84,9 +84,41 @@ namespace pcl
 
       public:
         DQDiffusion ()
+          : view_graph_ (new ViewGraph)
         {
         }
-        
 
+        inline ViewGraphPtr
+        getViewGraph () const;
 
-#endif
+        typename SLAMGraph::vertices_size_type
+        getNumVertices () const;
+
+        Vertex
+        addPointCloud (const PointCloudPtr &cloud);
+
+        inline void
+        setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud);
+
+        inline PointCloudPtr
+        getPointCloud (const Vertex &vertex);
+
+        void
+        compute ();
+
+        PointCloudPtr
+        getTransformedCloud (const Vertex &vertex) const;
+
+        PointCloudPtr
+        getConcatenatedCloud () const;
+
+      private:
+        /** \brief The internal view graph structure. */
+        ViewGraphPtr view_graph_;
+    };
+  }
+}
+
+#include <pcl/registration/impl/dq_diffusion.hpp>
+
+#endif // PCL_REGISTRATION_DQ_DIFFUSUION_H_
