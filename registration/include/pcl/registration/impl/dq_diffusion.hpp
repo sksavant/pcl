@@ -54,10 +54,17 @@ pcl::registration::DQDiffusion<PointT>::getNumVertices () const
 }
 
 template<typename PointT> typename pcl::registration::DQDiffusion<PointT>::Vertex
-pcl::registration::DQDiffusion<PointT>::addPointCloud (const PointCloudPtr &cloud)
+pcl::registration::DQDiffusion<PointT>::addPointCloud (const PointCloudPtr &cloud, const Eigen::Vector6f &pose)
 {
   Vertex v = add_vertex(*view_graph_);
   (*view_graph_)[v].cloud_ = cloud;
+  if (v == 0 && pose != Eigen::Vector6f::Zero ())
+  {
+    PCL_WARN("[pcl::registration::DQDiffusion::addPointCloud] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
+    (*view_graph_)[v].pose_ = Eigen::Vector6f::Zero ();
+    return (v);
+  }
+  (*view_graph_)[v].pose_ = pose;
   return (v);
 }
 
@@ -81,6 +88,40 @@ pcl::registration::DQDiffusion<PointT>::getPointCloud (const Vertex &vertex) con
     return (PointCloudPtr ());
   }
   return ((*view_graph_)[vertex].cloud_);
+}
+
+template<typename PointT> inline void
+pcl::registration::DQDiffusion<PointT>::setPose (const Vertex &vertex, const Eigen::Vector6f &pose)
+{
+  if (vertex >= getNumVertices ())
+  {
+    PCL_ERROR("[pcl::registration::DQDiffusion::setPose] You are attempting to set a pose estimate to a non-existing graph vertex.\n");
+    return;
+  }
+  if (vertex == 0)
+  {
+    PCL_ERROR("[pcl::registration::DQDiffusion::setPose] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
+    return;
+  }
+  (*view_graph_)[vertex].pose_ = pose;
+}
+
+template<typename PointT> inline Eigen::Vector6f
+pcl::registration::DQDiffusion<PointT>::getPose (const Vertex &vertex) const
+{
+  if (vertex >= getNumVertices ())
+  {
+    PCL_ERROR("[pcl::registration::LUM::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
+    return (Eigen::Vector6f::Zero ());
+  }
+  return ((*view_graph_)[vertex].pose_);
+}
+
+template<typename PointT> inline Eigen::Affine3f
+pcl::registration::DQDiffusion<PointT>::getTransformation (const Vertex &vertex) const
+{
+  Eigen::Vector6f pose = getPose (vertex);
+  return (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)));
 }
 
 template<typename PointT> void

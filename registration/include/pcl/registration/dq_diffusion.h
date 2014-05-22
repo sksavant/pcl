@@ -47,6 +47,12 @@
 #include <pcl/common/transforms.h> // For transforming clouds
 #include <pcl/registration/boost_graph.h> //graph includes and definitions
 
+namespace Eigen
+{
+  typedef Eigen::Matrix<float, 6, 1> Vector6f;
+  //typedef Eigen::Matrix<float, 6, 6> Matrix6f;
+}
+
 namespace pcl
 {
   namespace registration
@@ -72,6 +78,7 @@ namespace pcl
         struct VertexProperties
         {
           PointCloudPtr cloud_;
+          Eigen::Vector6f pose_; // initial estimate input
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 
@@ -99,13 +106,22 @@ namespace pcl
         getNumVertices () const;
 
         Vertex
-        addPointCloud (const PointCloudPtr &cloud);
+        addPointCloud (const PointCloudPtr &cloud, const Eigen::Vector6f &pose = Eigen::Vector6f::Zero ());
 
         inline void
         setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud);
 
         inline PointCloudPtr
         getPointCloud (const Vertex &vertex) const;
+
+        inline void
+        setPose (const Vertex &vertex, const Eigen::Vector6f &pose); //TODO dq pose input?
+
+        inline Eigen::Vector6f
+        getPose (const Vertex &Vertex) const;
+
+        inline Eigen::Affine3f
+        getTransformation (const Vertex &vertex) const;
 
         void
         compute ();
