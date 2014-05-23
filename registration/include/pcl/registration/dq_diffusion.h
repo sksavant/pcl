@@ -47,11 +47,6 @@
 #include <pcl/common/transforms.h> // For transforming clouds
 #include <pcl/registration/boost_graph.h> //graph includes and definitions
 
-namespace Eigen
-{
-  typedef Eigen::Matrix<float, 6, 1> Vector6f;
-  //typedef Eigen::Matrix<float, 6, 6> Matrix6f;
-}
 
 namespace pcl
 {
@@ -64,27 +59,31 @@ namespace pcl
      * \author Savant Krishna
      * \ingroup registration
      */
-    template<typename PointT>
+    template <typename PointT, typename Scalar = float>
     class DQDiffusion
     {
       public:
-        typedef boost::shared_ptr<DQDiffusion<PointT> > Ptr;
-        typedef boost::shared_ptr<const DQDiffusion<PointT> > ConstPtr;
+        typedef boost::shared_ptr<DQDiffusion<PointT, Scalar> > Ptr;
+        typedef boost::shared_ptr<const DQDiffusion<PointT, Scalar> > ConstPtr;
 
         typedef pcl::PointCloud<PointT> PointCloud;
         typedef typename PointCloud::Ptr PointCloudPtr;
         typedef typename PointCloud::ConstPtr PointCloudConstPtr;
 
+        typedef Eigen::Matrix<Scalar, 4, 4> Matrix4;
+        typedef Eigen::Matrix<Scalar, 6, 1> Vector6;
+
         struct VertexProperties
         {
           PointCloudPtr cloud_;
-          Eigen::Vector6f pose_; // initial estimate input
+          Vector6 pose_; // initial estimate input
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 
         struct EdgeProperties
         {
-          // edge transformation dq
+          Matrix4 transformation_;
+          Scalar weight_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 
@@ -96,6 +95,7 @@ namespace pcl
 
         DQDiffusion ()
           : view_graph_ (new ViewGraph)
+          , linear_approximation_ (false)
         {
         }
 
@@ -106,7 +106,7 @@ namespace pcl
         getNumVertices () const;
 
         Vertex
-        addPointCloud (const PointCloudPtr &cloud, const Eigen::Vector6f &pose = Eigen::Vector6f::Zero ());
+        addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose = Vector6::Zero ());
 
         inline void
         setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud);
@@ -115,12 +115,15 @@ namespace pcl
         getPointCloud (const Vertex &vertex) const;
 
         inline void
-        setPose (const Vertex &vertex, const Eigen::Vector6f &pose); //TODO dq pose input?
+        setLinearApproximation (bool linear_approximation);
 
-        inline Eigen::Vector6f
+        inline void
+        setPose (const Vertex &vertex, const Vector6 &pose); //TODO dq pose input?
+
+        inline Vector6
         getPose (const Vertex &Vertex) const;
 
-        inline Eigen::Affine3f
+        inline Matrix4
         getTransformation (const Vertex &vertex) const;
 
         void
@@ -135,6 +138,8 @@ namespace pcl
       private:
         /** \brief The internal view graph structure. */
         ViewGraphPtr view_graph_;
+
+        bool linear_approximation_;
     };
   }
 }

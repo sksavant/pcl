@@ -41,35 +41,35 @@
 #ifndef PCL_REGISTRATION_IMPL_DQ_DIFFUSION_HPP_
 #define PCL_REGISTRATION_IMPL_DQ_DIFFUSION_HPP_
 
-template<typename PointT> inline typename pcl::registration::DQDiffusion<PointT>::ViewGraphPtr
-pcl::registration::DQDiffusion<PointT>::getViewGraph () const
+template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::ViewGraphPtr
+pcl::registration::DQDiffusion<PointT, Scalar>::getViewGraph () const
 {
   return (view_graph_);
 }
 
-template<typename PointT> typename pcl::registration::DQDiffusion<PointT>::ViewGraph::vertices_size_type
-pcl::registration::DQDiffusion<PointT>::getNumVertices () const
+template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::ViewGraph::vertices_size_type
+pcl::registration::DQDiffusion<PointT, Scalar>::getNumVertices () const
 {
   return (num_vertices (*view_graph_));
 }
 
-template<typename PointT> typename pcl::registration::DQDiffusion<PointT>::Vertex
-pcl::registration::DQDiffusion<PointT>::addPointCloud (const PointCloudPtr &cloud, const Eigen::Vector6f &pose)
+template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::Vertex
+pcl::registration::DQDiffusion<PointT, Scalar>::addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose)
 {
   Vertex v = add_vertex(*view_graph_);
   (*view_graph_)[v].cloud_ = cloud;
-  if (v == 0 && pose != Eigen::Vector6f::Zero ())
+  if (v == 0 && pose != Vector6::Zero ())
   {
     PCL_WARN("[pcl::registration::DQDiffusion::addPointCloud] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
-    (*view_graph_)[v].pose_ = Eigen::Vector6f::Zero ();
+    (*view_graph_)[v].pose_ = Vector6::Zero ();
     return (v);
   }
   (*view_graph_)[v].pose_ = pose;
   return (v);
 }
 
-template<typename PointT> inline void
-pcl::registration::DQDiffusion<PointT>::setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud)
+template<typename PointT, typename Scalar> inline void
+pcl::registration::DQDiffusion<PointT, Scalar>::setPointCloud (const Vertex &vertex, const PointCloudPtr &cloud)
 {
   if (vertex >= getNumVertices())
   {
@@ -79,8 +79,8 @@ pcl::registration::DQDiffusion<PointT>::setPointCloud (const Vertex &vertex, con
   (*view_graph_)[vertex].cloud_ = cloud;
 }
 
-template<typename PointT> inline typename pcl::registration::DQDiffusion<PointT>::PointCloudPtr
-pcl::registration::DQDiffusion<PointT>::getPointCloud (const Vertex &vertex) const
+template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::PointCloudPtr
+pcl::registration::DQDiffusion<PointT, Scalar>::getPointCloud (const Vertex &vertex) const
 {
   if (vertex >= getNumVertices ())
   {
@@ -90,8 +90,14 @@ pcl::registration::DQDiffusion<PointT>::getPointCloud (const Vertex &vertex) con
   return ((*view_graph_)[vertex].cloud_);
 }
 
-template<typename PointT> inline void
-pcl::registration::DQDiffusion<PointT>::setPose (const Vertex &vertex, const Eigen::Vector6f &pose)
+template<typename PointT, typename Scalar> inline void
+pcl::registration::DQDiffusion<PointT, Scalar>::setLinearApproximation (bool linear_approximation)
+{
+  linear_approximation_ = linear_approximation;
+}
+
+template<typename PointT, typename Scalar> inline void
+pcl::registration::DQDiffusion<PointT, Scalar>::setPose (const Vertex &vertex, const Vector6 &pose)
 {
   if (vertex >= getNumVertices ())
   {
@@ -106,33 +112,33 @@ pcl::registration::DQDiffusion<PointT>::setPose (const Vertex &vertex, const Eig
   (*view_graph_)[vertex].pose_ = pose;
 }
 
-template<typename PointT> inline Eigen::Vector6f
-pcl::registration::DQDiffusion<PointT>::getPose (const Vertex &vertex) const
+template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::Vector6
+pcl::registration::DQDiffusion<PointT, Scalar>::getPose (const Vertex &vertex) const
 {
   if (vertex >= getNumVertices ())
   {
     PCL_ERROR("[pcl::registration::LUM::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
-    return (Eigen::Vector6f::Zero ());
+    return (Vector6::Zero ());
   }
   return ((*view_graph_)[vertex].pose_);
 }
 
-template<typename PointT> inline Eigen::Affine3f
-pcl::registration::DQDiffusion<PointT>::getTransformation (const Vertex &vertex) const
+template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::Matrix4
+pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex &vertex) const
 {
-  Eigen::Vector6f pose = getPose (vertex);
-  return (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)));
+  Vector6 pose = getPose (vertex);
+  return (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)).matrix());
 }
 
-template<typename PointT> void
-compute ()
+template<typename PointT, typename Scalar> void
+pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 {
   // TODO
   return;
 }
 
-template<typename PointT> typename pcl::registration::DQDiffusion<PointT>::PointCloudPtr
-pcl::registration::DQDiffusion<PointT>::getTransformedCloud (const Vertex &vertex) const
+template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::PointCloudPtr
+pcl::registration::DQDiffusion<PointT, Scalar>::getTransformedCloud (const Vertex &vertex) const
 {
   PointCloudPtr out (new PointCloud);
   // TODO
@@ -140,8 +146,8 @@ pcl::registration::DQDiffusion<PointT>::getTransformedCloud (const Vertex &verte
   return (out);
 }
 
-template<typename PointT> typename pcl::registration::DQDiffusion<PointT>::PointCloudPtr
-pcl::registration::DQDiffusion<PointT>::getConcatenatedCloud () const
+template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::PointCloudPtr
+pcl::registration::DQDiffusion<PointT, Scalar>::getConcatenatedCloud () const
 {
   PointCloudPtr out (new PointCloud);
   // TODO
