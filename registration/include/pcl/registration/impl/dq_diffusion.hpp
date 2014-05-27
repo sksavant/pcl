@@ -53,6 +53,18 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getNumVertices () const
   return (num_vertices (*view_graph_));
 }
 
+template<typename PointT, typename Scalar> void
+pcl::registration::DQDiffusion<PointT, Scalar>::setDiffusionIterations (int diffusion_iterations)
+{
+  diffusion_iterations_ = diffusion_iterations;
+}
+
+template<typename PointT, typename Scalar> inline int
+pcl::registration::DQDiffusion<PointT, Scalar>::getDiffusionIterations ()
+{
+  return (diffusion_iterations);
+}
+
 template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::Vertex
 pcl::registration::DQDiffusion<PointT, Scalar>::addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose)
 {
@@ -133,7 +145,12 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex 
 template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 {
-  // TODO
+  // BFS index list starting from 0
+  // Use transformations from 0 to estimate the pose.
+  // Question : Use intermediate pose estimates?
+
+  // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
+  // Iterate for num_iterations time
   return;
 }
 
@@ -141,8 +158,7 @@ template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusi
 pcl::registration::DQDiffusion<PointT, Scalar>::getTransformedCloud (const Vertex &vertex) const
 {
   PointCloudPtr out (new PointCloud);
-  // TODO
-  //pcl::transformPointCloud (*getPointCloud (vertex), *out, getTransformation (vertex));
+  pcl::transformPointCloud (*getPointCloud (vertex), *out, getTransformation (vertex));
   return (out);
 }
 
@@ -150,8 +166,13 @@ template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusi
 pcl::registration::DQDiffusion<PointT, Scalar>::getConcatenatedCloud () const
 {
   PointCloudPtr out (new PointCloud);
-  // TODO
-  //
+  typename ViewGraph::vertex_iterator v, v_end;
+  for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+  {
+    PointCloud temp;
+    pcl::transformPointCloud (*getPointCloud (*v), temp, getTransformation (*v));
+    *out += temp;
+  }
   return (out);
 }
 

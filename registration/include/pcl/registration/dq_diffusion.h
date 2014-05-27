@@ -96,6 +96,7 @@ namespace pcl
         DQDiffusion ()
           : view_graph_ (new ViewGraph)
           , linear_approximation_ (false)
+          , diffusion_iterations_(1000)
         {
         }
 
@@ -104,6 +105,12 @@ namespace pcl
 
         typename ViewGraph::vertices_size_type
         getNumVertices () const;
+
+        void
+        setDiffusionIterations (int diffusion_iterations);
+
+        inline int
+        getDiffusionIterations const;
 
         Vertex
         addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose = Vector6::Zero ());
@@ -140,6 +147,7 @@ namespace pcl
         ViewGraphPtr view_graph_;
 
         bool linear_approximation_;
+        int diffusion_iterations_;
     };
   }
 }
