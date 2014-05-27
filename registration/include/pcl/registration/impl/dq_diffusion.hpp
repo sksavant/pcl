@@ -60,9 +60,9 @@ pcl::registration::DQDiffusion<PointT, Scalar>::setDiffusionIterations (int diff
 }
 
 template<typename PointT, typename Scalar> inline int
-pcl::registration::DQDiffusion<PointT, Scalar>::getDiffusionIterations ()
+pcl::registration::DQDiffusion<PointT, Scalar>::getDiffusionIterations () const
 {
-  return (diffusion_iterations);
+  return (diffusion_iterations_);
 }
 
 template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::Vertex
@@ -143,15 +143,38 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex 
 }
 
 template<typename PointT, typename Scalar> void
+pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
+{
+
+}
+
+template<typename PointT, typename Scalar> void
+pcl::registration::DQDiffusion<PointT, Scalar>::manifoldDiffusion ()
+{
+
+}
+
+template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 {
+  // Sanity checks
+
   // BFS index list starting from 0
   // Use transformations from 0 to estimate the pose.
   // Question : Use intermediate pose estimates?
+  // Issue : More than one connected components : No transformation from 0 to some vetices : Handle it?
+  // TODO
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
   // Iterate for num_iterations time
-  return;
+  if (linear_approximation_)
+  {
+    linearDiffusion ();
+  }
+  else
+  {
+    manifoldDiffusion ();
+  }
 }
 
 template<typename PointT, typename Scalar> typename pcl::registration::DQDiffusion<PointT, Scalar>::PointCloudPtr

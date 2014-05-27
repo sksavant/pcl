@@ -110,7 +110,7 @@ namespace pcl
         setDiffusionIterations (int diffusion_iterations);
 
         inline int
-        getDiffusionIterations const;
+        getDiffusionIterations () const;
 
         Vertex
         addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose = Vector6::Zero ());
@@ -141,6 +141,13 @@ namespace pcl
 
         PointCloudPtr
         getConcatenatedCloud () const;
+
+      protected:
+        void
+        linearDiffusion ();
+
+        void
+        manifoldDiffusion ();
 
       private:
         /** \brief The internal view graph structure. */
