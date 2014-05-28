@@ -103,6 +103,34 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getPointCloud (const Vertex &ver
 }
 
 template<typename PointT, typename Scalar> inline void
+pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const Vertex &from_vertex, const Vertex &to_vertex, Matrix4 &transformation, Scalar &weight)
+{
+  Edge e;
+  bool present;
+  Vertex source_vertex, target_vertex;
+  Matrix4 edge_transformation;
+  if (from_vertex < to_vertex)
+  {
+    source_vertex = from_vertex;
+    target_vertex = to_vertex;
+    edge_transformation = transformation;
+  }
+  else
+  {
+    source_vertex = to_vertex;
+    target_vertex = from_vertex;
+    edge_transformation = (Eigen::Transform<Scalar, 3, Eigen::Affine> (transformation)).inverse (Eigen::Affine).matrix ();
+  }
+  boost::tuples::tie (e, present) = edge (source_vertex, target_vertex, *view_graph_);
+  if (!present)
+  {
+    boost::tuples::tie (e, present) = add_edge (source_vertex, target_vertex, *view_graph_);
+  }
+  (*view_graph_)[e].transformation_ = edge_transformation;
+  (*view_graph_)[e].weight_ = weight;
+}
+
+template<typename PointT, typename Scalar> inline void
 pcl::registration::DQDiffusion<PointT, Scalar>::setLinearApproximation (bool linear_approximation)
 {
   linear_approximation_ = linear_approximation;

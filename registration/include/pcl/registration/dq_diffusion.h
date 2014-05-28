@@ -122,6 +122,9 @@ namespace pcl
         getPointCloud (const Vertex &vertex) const;
 
         inline void
+        addPairwiseTransformation (const Vertex &from_vertex, const Vertex &to_vertex, Matrix4 &transformation, Scalar &weight = 1.0);
+
+        inline void
         setLinearApproximation (bool linear_approximation);
 
         inline void
