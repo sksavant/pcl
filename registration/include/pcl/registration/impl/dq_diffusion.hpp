@@ -103,7 +103,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getPointCloud (const Vertex &ver
 }
 
 template<typename PointT, typename Scalar> inline void
-pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const Vertex &from_vertex, const Vertex &to_vertex, Matrix4 &transformation, Scalar &weight)
+pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const Vertex &from_vertex, const Vertex &to_vertex, Matrix4 &transformation, Scalar weight)
 {
   Edge e;
   bool present;
