@@ -41,6 +41,7 @@
 #define PCL_REGISTRATION_BOOST_GRAPH_H_
 
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <Eigen/StdVector>
 #include <list>
 

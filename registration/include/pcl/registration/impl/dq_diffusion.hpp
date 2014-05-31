@@ -191,7 +191,10 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
   // Use transformations from 0 to estimate the pose.
   // Question : Use intermediate pose estimates?
   // Issue : More than one connected components : No transformation from 0 to some vetices : Handle it?
-  // TODO
+  // TODO=
+
+  bfs_order_visitor vis;
+  boost::breadth_first_search(*view_graph_, vertex(0, *view_graph_), visitor(vis));
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
   // Iterate for num_iterations time

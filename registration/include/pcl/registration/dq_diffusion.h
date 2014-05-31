@@ -52,6 +52,18 @@ namespace pcl
 {
   namespace registration
   {
+    struct bfs_order_visitor : public boost::default_bfs_visitor
+    {
+        template<typename Vertex, typename Graph> void
+        discover_vertex(Vertex v, const Graph &g)
+        {
+          bfs_ordered_vertices.push_back(static_cast<int>(v));
+        }
+
+        std::vector<int> bfs_ordered_vertices;
+    };
+
+
     /**
      * \brief Multiview Registration via Graph diffusion of Dual Quaternions
      * \details
