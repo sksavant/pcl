@@ -49,4 +49,12 @@
 #include <unsupported/Eigen/Polynomials>
 #include <Eigen/Dense>
 
+namespace Eigen{
+
+  template<Scalar>
+  class DualQuaternion
+  {
+
+  };
+
 #endif    // PCL_REGISTRATION_EIGEN_H_
