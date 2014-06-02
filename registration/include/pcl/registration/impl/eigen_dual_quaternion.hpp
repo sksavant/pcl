@@ -47,13 +47,19 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const Scalar *data)
 }
 
 template<typename Scalar>
-Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS r, const Vector3S t)
+Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &r, const Vector3S &t)
 {
 
 }
 
 template<typename Scalar>
-Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S tm)
+Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &qr, const QuaternionS &qd)
+{
+
+}
+
+template<typename Scalar>
+Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S &tm)
 {
 
 }
@@ -61,6 +67,7 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S tm)
 template<typename Scalar> void
 Eigen::DualQuaternion<Scalar>::normalize ()
 {
+  
 
 }
 
@@ -74,7 +81,7 @@ Eigen::DualQuaternion<Scalar>::getTranslation ()
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator+ (const DualQuaternion<Scalar> a)
+Eigen::DualQuaternion<Scalar>::operator+ (const DualQuaternion<Scalar> &a)
 {
   Eigen::DualQuaternion<Scalar> res;
 
@@ -83,9 +90,18 @@ Eigen::DualQuaternion<Scalar>::operator+ (const DualQuaternion<Scalar> a)
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator* (const DualQuaternion<Scalar> a)
+Eigen::DualQuaternion<Scalar>::operator* (const DualQuaternion<Scalar> &a)
 {
   Eigen::DualQuaternion<Scalar> res;
+
+  return res;
+
+}
+
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
+Eigen::DualQuaternion<Scalar>::operator* (const Scalar &a)
+{
+  Eigen::DualQuaternion<Scalar> res(this->real(), this->dual());
 
   return res;
 
@@ -94,7 +110,7 @@ Eigen::DualQuaternion<Scalar>::operator* (const DualQuaternion<Scalar> a)
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::operator~ ()
 {
-  Eigen::DualQuaternion<Scalar> res;
+  Eigen::DualQuaternion<Scalar> res(this->qr, this->qd);
 
   return res;
 
@@ -126,11 +142,35 @@ Eigen::DualQuaternion<Scalar>::exp ()
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Scalar
-Eigen::DualQuaternion<Scalar>::dot (const DualQuaternion<Scalar> a)
+Eigen::DualQuaternion<Scalar>::dot (const DualQuaternion<Scalar> &a)
 {
   Scalar res;
 
   return res;
+}
+
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::QuaternionS
+Eigen::DualQuaternion<Scalar>::real () const
+{
+  return this->qr;
+}
+
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::QuaternionS&
+Eigen::DualQuaternion<Scalar>::real ()
+{
+  return this->qr;
+}
+
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::QuaternionS
+Eigen::DualQuaternion<Scalar>::dual () const
+{
+  return this->qd;
+}
+
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::QuaternionS&
+Eigen::DualQuaternion<Scalar>::dual ()
+{
+  return this->qd;
 }
 
 #endif

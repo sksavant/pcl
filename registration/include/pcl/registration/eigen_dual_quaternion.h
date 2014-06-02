@@ -65,8 +65,9 @@ namespace Eigen{
       }
 
       DualQuaternion (const Scalar *data);
-      DualQuaternion (const QuaternionS r, const Vector3S t);
-      DualQuaternion (const Matrix4S tm);
+      DualQuaternion (const QuaternionS &r, const Vector3S &t);
+      DualQuaternion (const QuaternionS &qr, const QuaternionS &qd);
+      DualQuaternion (const Matrix4S &tm);
 
       inline void
       normalize ();
@@ -76,10 +77,13 @@ namespace Eigen{
 
 
       inline DualQuaternion<Scalar>
-      operator+ (const DualQuaternion<Scalar> a);
+      operator+ (const DualQuaternion<Scalar> &a);
 
       inline DualQuaternion<Scalar>
-      operator* (const DualQuaternion<Scalar> a);
+      operator* (const DualQuaternion<Scalar> &a);
+
+      inline DualQuaternion<Scalar>
+      operator* (const Scalar &a);
 
       inline DualQuaternion<Scalar>
       operator~ ();
@@ -94,11 +98,22 @@ namespace Eigen{
       exp ();
 
       inline typename Eigen::DualQuaternion<Scalar>::Scalar
-      dot (const DualQuaternion<Scalar> a);
+      dot (const DualQuaternion<Scalar> &a);
+
+      inline typename Eigen::DualQuaternion<Scalar>::QuaternionS
+      real () const;
+
+      inline typename Eigen::DualQuaternion<Scalar>::QuaternionS&
+      real ();
+
+      inline typename Eigen::DualQuaternion<Scalar>::QuaternionS
+      dual () const;
+
+      inline typename Eigen::DualQuaternion<Scalar>::QuaternionS&
+      dual ();
 
     protected:
 
-    private:
       QuaternionS qr; //Real part
       QuaternionS qd; //Dual part
   };
