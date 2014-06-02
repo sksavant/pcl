@@ -119,7 +119,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
   {
     source_vertex = to_vertex;
     target_vertex = from_vertex;
-    edge_transformation = (Eigen::Transform<Scalar, 3, Eigen::Affine> (transformation)).inverse (Eigen::Affine).matrix ();
+    edge_transformation = (Affine3 (transformation)).inverse (Eigen::Affine).matrix ();
   }
   boost::tuples::tie (e, present) = edge (source_vertex, target_vertex, *view_graph_);
   if (!present)
@@ -195,6 +195,29 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 
   boost::bfs_order_visitor vis;
   boost::breadth_first_search(*view_graph_, vertex(0, *view_graph_), boost::visitor(vis));
+
+  int num_vertices = getNumVertices();
+  Edge e;
+  bool present;
+  for (int v = 1; v < num_vertices - 1; ++v)
+  {
+    Vertex target = v;
+    if ((*view_graph_)[target].pose_ != Vector6::Zero()){
+      continue;
+    }
+    for (int u = 0; u < v; ++u)
+    {
+      Vertex source = u;
+      boost::tuples::tie (e, present) = edge (source, target, *view_graph_);
+      if (present)
+      {
+        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].transformation_);
+        Vector6 p = Vector6::Zero ();
+        pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+        (*view_graph_)[target].pose_ = p;
+      }
+    }
+  }
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
   // Iterate for num_iterations time

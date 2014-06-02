@@ -74,6 +74,7 @@ namespace pcl
 
         typedef Eigen::Matrix<Scalar, 4, 4> Matrix4;
         typedef Eigen::Matrix<Scalar, 6, 1> Vector6;
+        typedef Eigen::Transform<Scalar, 3, Eigen::Affine> Affine3;
 
         struct VertexProperties
         {
@@ -84,7 +85,7 @@ namespace pcl
 
         struct EdgeProperties
         {
-          Matrix4 transformation_;
+          Matrix4 transformation_; // TODO change to DQ
           Scalar weight_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
