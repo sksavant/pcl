@@ -33,86 +33,78 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id$
+ * $Id: lmeds.h 1370 2011-06-19 01:06:01Z jspricke $
  *
  */
 
-#ifndef PCL_REGISTRATION_EIGEN_HPP_
-#define PCL_REGISTRATION_EIGEN_HPP_
+#ifndef PCL_REGISTRATION_EIGEN_DUAL_QUATERNION_H_
+#define PCL_REGISTRATION_EIGEN_DUAL_QUATERNION_H_
 
-template<typename Scalar>
-Eigen::DualQuaternion<Scalar>::DualQuaternion (const Scalar *data)
-{
-
-}
-
-template<typename Scalar>
-Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS r, const Vector3S t)
-{
-
-}
-
-template<typename Scalar>
-Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S tm)
-{
-
-}
-
-template<typename Scalar> void
-Eigen::DualQuaternion<Scalar>::
-
-template<typename Scalar> void
-Eigen::DualQuaternion<Scalar>::normalize ()
-{
-
-}
-
-template<typename Scalar> Eigen::DualQuaternion::Vector3S
-Eigen::DualQuaternion<Scalar>::getTranslation ()
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator+ (const DualQuaternion<Scalar> a)
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator* (const DualQuaternion<Scalar> a)
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator~ (const DualQuaternion<Scalar> a)
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator! (const DualQuaternion<Scalar> a)
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::log ()
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::exp ()
-{
-
-}
-
-template<typename Scalar> typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::dot ()
-{
-
-}
-
+#if defined __GNUC__
+#  pragma GCC system_header 
 #endif
+
+#include <Eigen/Dense>
+
+namespace Eigen{
+
+  template<typename Scalar = float>
+  class DualQuaternion
+  {
+    public:
+      typedef Eigen::Quaternion<Scalar> QuaternionS;
+      typedef Eigen::Matrix<Scalar, 3, 1> Vector3S;
+      typedef Eigen::Matrix<Scalar, 4, 4> Matrix4S;
+
+      EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+      DualQuaternion ()
+        : qr(QuaternionS(1,0,0,0))
+        , qd(QuaternionS(0,0,0,0))
+      {
+      }
+
+      DualQuaternion (const Scalar *data);
+      DualQuaternion (const QuaternionS r, const Vector3S t);
+      DualQuaternion (const Matrix4S tm);
+
+      inline void
+      normalize ();
+
+      inline Vector3S
+      getTranslation ();
+
+
+      inline DualQuaternion<Scalar>
+      operator+ (const DualQuaternion<Scalar> a);
+
+      inline DualQuaternion<Scalar>
+      operator* (const DualQuaternion<Scalar> a);
+
+      inline DualQuaternion<Scalar>
+      operator~ ();
+
+      inline DualQuaternion<Scalar>
+      operator! ();
+
+      inline DualQuaternion<Scalar>
+      log ();
+
+      inline DualQuaternion<Scalar>
+      exp ();
+
+      inline typename Eigen::DualQuaternion<Scalar>::Scalar
+      dot (const DualQuaternion<Scalar> a);
+
+    protected:
+
+    private:
+      QuaternionS qr; //Real part
+      QuaternionS qd; //Dual part
+  };
+
+} // Eigen namespace
+
+#include <pcl/registration/impl/eigen_dual_quaternion.hpp>
+
+#endif    // PCL_REGISTRATION_EIGEN_H_

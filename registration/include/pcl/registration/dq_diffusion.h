@@ -43,6 +43,7 @@
 
 #include <pcl/pcl_base.h> //Base?
 #include <pcl/registration/eigen.h> //Eigen includes
+#include <pcl/registration/eigen_dual_quaternion.h>
 #include <pcl/registration/boost.h> //Boost includes
 #include <pcl/common/transforms.h> // For transforming clouds
 #include <pcl/registration/boost_graph.h> //graph includes and definitions
@@ -52,17 +53,6 @@ namespace pcl
 {
   namespace registration
   {
-    struct bfs_order_visitor : public boost::default_bfs_visitor
-    {
-        template<typename Vertex, typename Graph> void
-        discover_vertex(Vertex v, const Graph &g)
-        {
-          bfs_ordered_vertices.push_back(static_cast<int>(v));
-        }
-
-        std::vector<int> bfs_ordered_vertices;
-    };
-
 
     /**
      * \brief Multiview Registration via Graph diffusion of Dual Quaternions
