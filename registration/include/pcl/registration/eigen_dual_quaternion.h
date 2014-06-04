@@ -97,7 +97,7 @@ namespace Eigen{
       inline DualQuaternion<Scalar>
       exp ();
 
-      inline typename Eigen::DualQuaternion<Scalar>::Scalar
+      inline Scalar
       dot (const DualQuaternion<Scalar> &a);
 
       inline typename Eigen::DualQuaternion<Scalar>::QuaternionS
