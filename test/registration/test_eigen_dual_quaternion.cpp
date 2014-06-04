@@ -128,6 +128,45 @@ TEST (PCL, DualQuaternionQuaternionVectorInitd)
   EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z () * 0.5);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST (PCL, DualQuaternionTwoQuaternionInitf)
+{
+  Eigen::Quaternionf  qr (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd (frand (), frand (), frand (), frand ());
+
+  Eigen::DualQuaternion<float> dq (qr, qd);
+
+  EXPECT_FLOAT_EQ(dq.real ().w (), qr.w ());
+  EXPECT_FLOAT_EQ(dq.real ().x (), qr.x ());
+  EXPECT_FLOAT_EQ(dq.real ().y (), qr.y ());
+  EXPECT_FLOAT_EQ(dq.real ().z (), qr.z ());
+
+  EXPECT_FLOAT_EQ(dq.dual ().w (), qd.w ());
+  EXPECT_FLOAT_EQ(dq.dual ().x (), qd.x ());
+  EXPECT_FLOAT_EQ(dq.dual ().y (), qd.y ());
+  EXPECT_FLOAT_EQ(dq.dual ().z (), qd.z ());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST (PCL, DualQuaternionTwoQuaternionInitd)
+{
+  Eigen::Quaterniond  qr (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd (drand (), drand (), drand (), drand ());
+
+  Eigen::DualQuaternion<double> dq (qr, qd);
+
+  EXPECT_DOUBLE_EQ(dq.real ().w (), qr.w ());
+  EXPECT_DOUBLE_EQ(dq.real ().x (), qr.x ());
+  EXPECT_DOUBLE_EQ(dq.real ().y (), qr.y ());
+  EXPECT_DOUBLE_EQ(dq.real ().z (), qr.z ());
+
+  EXPECT_DOUBLE_EQ(dq.dual ().w (), qd.w ());
+  EXPECT_DOUBLE_EQ(dq.dual ().x (), qd.x ());
+  EXPECT_DOUBLE_EQ(dq.dual ().y (), qd.y ());
+  EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z ());
+}
+
+
 /* ---[ */
 int
 main (int argc, char** argv)

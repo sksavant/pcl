@@ -61,8 +61,8 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &r, const Vecto
 template<typename Scalar>
 Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &qr, const QuaternionS &qd)
 {
-  qr = qr;
-  qd = qd;
+  this->qr = qr;
+  this->qd = qd;
 }
 
 template<typename Scalar>
