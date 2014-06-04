@@ -170,42 +170,48 @@ TEST (PCL, DualQuaternionTwoQuaternionInitd)
 TEST (PCL, DualQuaternionMatrixInitf)
 {
   // TODO
-  Eigen::Matrix4f m = Eigen::Matrix4f::Identity();
+
+  const Eigen::Quaternionf qr = Eigen::Quaternionf (.9f, .1f, -.25f, .15f).normalized ();
+  const Eigen::Translation3f t = Eigen::Translation3f (.5f, -2.f, 1.f);
+  const Eigen::Matrix4f m = (Eigen::Affine3f (t * qr)).matrix ();
+
+  Eigen::Quaternionf tq (0, t.x (), t.y (), t.z ());
+  Eigen::Quaternionf qd = tq * qr;
 
   Eigen::DualQuaternion<float> dq (m);
 
-  /*
   EXPECT_FLOAT_EQ(dq.real ().w (), qr.w ());
   EXPECT_FLOAT_EQ(dq.real ().x (), qr.x ());
   EXPECT_FLOAT_EQ(dq.real ().y (), qr.y ());
   EXPECT_FLOAT_EQ(dq.real ().z (), qr.z ());
 
-  EXPECT_FLOAT_EQ(dq.dual ().w (), qd.w ());
-  EXPECT_FLOAT_EQ(dq.dual ().x (), qd.x ());
-  EXPECT_FLOAT_EQ(dq.dual ().y (), qd.y ());
-  EXPECT_FLOAT_EQ(dq.dual ().z (), qd.z ());
-  */
+  EXPECT_FLOAT_EQ(dq.dual ().w (), qd.w () * 0.5);
+  EXPECT_FLOAT_EQ(dq.dual ().x (), qd.x () * 0.5);
+  EXPECT_FLOAT_EQ(dq.dual ().y (), qd.y () * 0.5);
+  EXPECT_FLOAT_EQ(dq.dual ().z (), qd.z () * 0.5);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 TEST (PCL, DualQuaternionMatrixInitd)
 {
-  // TODO
-  Eigen::Matrix4d m = Eigen::Matrix4d::Identity();
+  const Eigen::Quaterniond qr = Eigen::Quaterniond (.9, .1, -.25, .15).normalized ();
+  const Eigen::Translation3d t = Eigen::Translation3d (.5, -2, 1);
+  const Eigen::Matrix4d m = (Eigen::Affine3d (t * qr)).matrix ();
+
+  Eigen::Quaterniond tq (0, t.x (), t.y (), t.z ());
+  Eigen::Quaterniond qd = tq * qr;
 
   Eigen::DualQuaternion<double> dq (m);
 
-  /*
   EXPECT_DOUBLE_EQ(dq.real ().w (), qr.w ());
   EXPECT_DOUBLE_EQ(dq.real ().x (), qr.x ());
   EXPECT_DOUBLE_EQ(dq.real ().y (), qr.y ());
   EXPECT_DOUBLE_EQ(dq.real ().z (), qr.z ());
 
-  EXPECT_DOUBLE_EQ(dq.dual ().w (), qd.w ());
-  EXPECT_DOUBLE_EQ(dq.dual ().x (), qd.x ());
-  EXPECT_DOUBLE_EQ(dq.dual ().y (), qd.y ());
-  EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z ());
-  */
+  EXPECT_DOUBLE_EQ(dq.dual ().w (), qd.w () * 0.5);
+  EXPECT_DOUBLE_EQ(dq.dual ().x (), qd.x () * 0.5);
+  EXPECT_DOUBLE_EQ(dq.dual ().y (), qd.y () * 0.5);
+  EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z () * 0.5);
 }
 
 /* ---[ */
