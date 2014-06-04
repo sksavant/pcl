@@ -50,7 +50,12 @@ template<typename Scalar>
 Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &r, const Vector3S &t)
 {
   qr = r;
-  qd = QuaternionS (0, t (0), t (1), t (2)) * r * 0.5;
+  qd = QuaternionS (0, t (0), t (1), t (2)) * r;
+  // FIXME : Can we use qd * Eigen::UniformScaling(0.5)?
+  qd = QuaternionS (qd.w () * 0.5, qd.x () * 0.5, qd.y () * 0.5, qd.z () * 0.5);
+
+
+
 }
 
 template<typename Scalar>
