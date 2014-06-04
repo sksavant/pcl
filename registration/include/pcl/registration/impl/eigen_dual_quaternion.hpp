@@ -68,8 +68,18 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const QuaternionS &qr, const Quat
 template<typename Scalar>
 Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S &tm)
 {
-  qr = QuaternionS (tm);
-  qd = QuaternionS (0, tm (0,3), tm (1,3), tm (2,3)) * qr * 0.5;
+  Eigen::Matrix<Scalar, 3, 3> rot = Eigen::Matrix<Scalar, 3, 3>::Zero();
+  for (int i=0; i<3; ++i)
+  {
+    for (int j=0; j<3; ++j)
+    {
+      rot (i,j) = tm (i,j);
+    }
+  }
+  qr = rot;
+  qd = QuaternionS (0, tm (0,3), tm (1,3), tm (2,3)) * qr;
+  // FIXME : Can we use qd * Eigen::UniformScaling(0.5)?
+  qd = QuaternionS (qd.w () * 0.5, qd.x () * 0.5, qd.y () * 0.5, qd.z () * 0.5);
 }
 
 template<typename Scalar> void

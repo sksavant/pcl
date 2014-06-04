@@ -166,6 +166,47 @@ TEST (PCL, DualQuaternionTwoQuaternionInitd)
   EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z ());
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST (PCL, DualQuaternionMatrixInitf)
+{
+  // TODO
+  Eigen::Matrix4f m = Eigen::Matrix4f::Identity();
+
+  Eigen::DualQuaternion<float> dq (m);
+
+  /*
+  EXPECT_FLOAT_EQ(dq.real ().w (), qr.w ());
+  EXPECT_FLOAT_EQ(dq.real ().x (), qr.x ());
+  EXPECT_FLOAT_EQ(dq.real ().y (), qr.y ());
+  EXPECT_FLOAT_EQ(dq.real ().z (), qr.z ());
+
+  EXPECT_FLOAT_EQ(dq.dual ().w (), qd.w ());
+  EXPECT_FLOAT_EQ(dq.dual ().x (), qd.x ());
+  EXPECT_FLOAT_EQ(dq.dual ().y (), qd.y ());
+  EXPECT_FLOAT_EQ(dq.dual ().z (), qd.z ());
+  */
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST (PCL, DualQuaternionMatrixInitd)
+{
+  // TODO
+  Eigen::Matrix4d m = Eigen::Matrix4d::Identity();
+
+  Eigen::DualQuaternion<double> dq (m);
+
+  /*
+  EXPECT_DOUBLE_EQ(dq.real ().w (), qr.w ());
+  EXPECT_DOUBLE_EQ(dq.real ().x (), qr.x ());
+  EXPECT_DOUBLE_EQ(dq.real ().y (), qr.y ());
+  EXPECT_DOUBLE_EQ(dq.real ().z (), qr.z ());
+
+  EXPECT_DOUBLE_EQ(dq.dual ().w (), qd.w ());
+  EXPECT_DOUBLE_EQ(dq.dual ().x (), qd.x ());
+  EXPECT_DOUBLE_EQ(dq.dual ().y (), qd.y ());
+  EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z ());
+  */
+}
 
 /* ---[ */
 int
