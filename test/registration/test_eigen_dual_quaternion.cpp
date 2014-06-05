@@ -223,7 +223,7 @@ TEST (PCL, DualQuaternionNormalizef)
 
   dq.normalize ();
 
-  EXPECT_FLOAT_EQ (dq.real ().norm (), 1);
+  EXPECT_FLOAT_EQ (dq.real ().norm (), 1.0f);
   //EXPECT_FLOAT_EQ (dq.real ().dot (dq.dual ()), 0); // FIXME Numerical unstability or normal float equality isues?
   EXPECT_NEAR (dq.real ().dot (dq.dual ()), 0, 1e-5); // FIXME randomly chose 1e-5, is there a theoretical bound? To compute
 
@@ -238,12 +238,45 @@ TEST (PCL, DualQuaternionNormalized)
 
   dq.normalize ();
 
-  EXPECT_DOUBLE_EQ (dq.real ().norm (), 1);
+  EXPECT_DOUBLE_EQ (dq.real ().norm (), 1.0);
   //EXPECT_DOUBLE_EQ (dq.real ().dot (dq.dual ()), 0); // FIXME Numerical unstability ?
   EXPECT_NEAR (dq.real ().dot (dq.dual ()), 0, 1e-10); // FIXME randomly chose 1e-10, is there a theoretical bound? To compute
 
 }
 
+TEST (PCL, DualQuaternionGetTranslationf)
+{
+  Eigen::Quaternionf  q (frand (), frand (), frand (), frand ());
+  //q.normalize ();
+  Eigen::Vector3f v (frand (), frand (), frand ());
+
+  Eigen::DualQuaternion<float> dq (q, v);
+
+  Eigen::Vector3f v_res = dq.getTranslation ();
+
+  // FIXME : expect_float_eq sometimes fails use expect_near maybe?
+  EXPECT_FLOAT_EQ (v_res (0), v (0));
+  EXPECT_FLOAT_EQ (v_res (1), v (1));
+  EXPECT_FLOAT_EQ (v_res (2), v (2));
+
+}
+
+TEST (PCL, DualQuaternionGetTranslationd)
+{
+  Eigen::Quaterniond  q (drand (), drand (), drand (), drand ());
+  //q.normalize ();
+  Eigen::Vector3d v (drand (), drand (), drand ());
+
+  Eigen::DualQuaternion<double> dq (q, v);
+
+  Eigen::Vector3d v_res = dq.getTranslation ();
+
+  // FIXME : expect_double_eq sometimes fails use expect_near maybe?
+  EXPECT_DOUBLE_EQ (v_res (0), v (0));
+  EXPECT_DOUBLE_EQ (v_res (1), v (1));
+  EXPECT_DOUBLE_EQ (v_res (2), v (2));
+
+}
 /* ---[ */
 int
 main (int argc, char** argv)

@@ -110,8 +110,9 @@ Eigen::DualQuaternion<Scalar>::normalize ()
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Vector3S
 Eigen::DualQuaternion<Scalar>::getTranslation ()
 {
-  QuaternionS t = qd * qr.conjugate () * 2;
-  return Vector3S(t.x(), t.y(), t.z());
+  QuaternionS t = qd * qr.conjugate ();
+  Scalar qr_norm = qr.squaredNorm ();
+  return (Vector3S (t.x () * 2 / qr_norm, t.y () * 2 / qr_norm, t.z () * 2 / qr_norm));
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
