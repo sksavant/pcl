@@ -277,6 +277,55 @@ TEST (PCL, DualQuaternionGetTranslationd)
   EXPECT_DOUBLE_EQ (v_res (2), v (2));
 
 }
+
+TEST (PCL, DualQuaternionDotf)
+{
+  Eigen::Quaternionf  qr1 (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd1 (frand (), frand (), frand (), frand ());
+
+  Eigen::Quaternionf  qr2 (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd2 (frand (), frand (), frand (), frand ());
+
+  Eigen::DualQuaternion<float> dq1 (qr1, qd1);
+  Eigen::DualQuaternion<float> dq2 (qr2, qd2);
+
+  float dot_res_12 = qr1.dot (qr2);
+  float dot_res_21 = qr2.dot (qr1);
+
+  EXPECT_FLOAT_EQ (dot_res_12, dot_res_21);
+
+  // FIXME Maybe split into two tests?
+  Eigen::DualQuaternion<float> dq_init;
+
+  float dot_init = dq_init.dot (dq1);
+
+  EXPECT_FLOAT_EQ (dq1.real ().w (), dot_init);
+}
+
+TEST (PCL, DualQuaternionDotd)
+{
+  Eigen::Quaterniond  qr1 (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd1 (drand (), drand (), drand (), drand ());
+
+  Eigen::Quaterniond  qr2 (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd2 (drand (), drand (), drand (), drand ());
+
+  Eigen::DualQuaternion<double> dq1 (qr1, qd1);
+  Eigen::DualQuaternion<double> dq2 (qr2, qd2);
+
+  double dot_res_12 = qr1.dot (qr2);
+  double dot_res_21 = qr2.dot (qr1);
+
+  EXPECT_DOUBLE_EQ (dot_res_12, dot_res_21);
+
+  // FIXME Maybe split into two tests?
+  Eigen::DualQuaternion<double> dq_init;
+
+  double dot_init = dq_init.dot (dq1);
+
+  EXPECT_DOUBLE_EQ (dq1.real ().w (), dot_init);
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)
