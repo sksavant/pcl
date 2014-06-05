@@ -156,7 +156,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getPose (const Vertex &vertex) c
 {
   if (vertex >= getNumVertices ())
   {
-    PCL_ERROR("[pcl::registration::LUM::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
+    PCL_ERROR("[pcl::registration::DQDiffusion::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
     return (Vector6::Zero ());
   }
   return ((*view_graph_)[vertex].pose_);
