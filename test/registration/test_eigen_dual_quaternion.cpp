@@ -326,6 +326,108 @@ TEST (PCL, DualQuaternionDotd)
   EXPECT_DOUBLE_EQ (dq1.real ().w (), dot_init);
 }
 
+TEST (PCL, DualQuaternionMultiplyf)
+{
+  Eigen::Quaternionf  qr1 (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd1 (frand (), frand (), frand (), frand ());
+
+  Eigen::Quaternionf  qr2 (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd2 (frand (), frand (), frand (), frand ());
+
+  Eigen::DualQuaternion<float> dq1 (qr1, qd1);
+  Eigen::DualQuaternion<float> dq2 (qr2, qd2);
+
+  Eigen::DualQuaternion<float> dq_res = dq1 * dq2;
+
+  Eigen::Quaternionf real_res = qr1 * qr2;
+  Eigen::Quaternionf dual_res1 = qr1 * qd2;
+  Eigen::Quaternionf dual_res2 = qd1 * qr2;
+
+  EXPECT_FLOAT_EQ (dq_res.real ().w (), real_res.w ());
+  EXPECT_FLOAT_EQ (dq_res.real ().x (), real_res.x ());
+  EXPECT_FLOAT_EQ (dq_res.real ().y (), real_res.y ());
+  EXPECT_FLOAT_EQ (dq_res.real ().z (), real_res.z ());
+
+  EXPECT_FLOAT_EQ (dq_res.dual ().w (), dual_res1.w () + dual_res2.w ());
+  EXPECT_FLOAT_EQ (dq_res.dual ().x (), dual_res1.x () + dual_res2.x ());
+  EXPECT_FLOAT_EQ (dq_res.dual ().y (), dual_res1.y () + dual_res2.y ());
+  EXPECT_FLOAT_EQ (dq_res.dual ().z (), dual_res1.z () + dual_res2.z ());
+}
+
+TEST (PCL, DualQuaternionMultiplyd)
+{
+  Eigen::Quaterniond  qr1 (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd1 (drand (), drand (), drand (), drand ());
+
+  Eigen::Quaterniond  qr2 (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd2 (drand (), drand (), drand (), drand ());
+
+  Eigen::DualQuaternion<double> dq1 (qr1, qd1);
+  Eigen::DualQuaternion<double> dq2 (qr2, qd2);
+
+  Eigen::DualQuaternion<double> dq_res = dq1 * dq2;
+
+  Eigen::Quaterniond real_res = qr1 * qr2;
+  Eigen::Quaterniond dual_res1 = qr1 * qd2;
+  Eigen::Quaterniond dual_res2 = qd1 * qr2;
+
+  EXPECT_DOUBLE_EQ (dq_res.real ().w (), real_res.w ());
+  EXPECT_DOUBLE_EQ (dq_res.real ().x (), real_res.x ());
+  EXPECT_DOUBLE_EQ (dq_res.real ().y (), real_res.y ());
+  EXPECT_DOUBLE_EQ (dq_res.real ().z (), real_res.z ());
+
+  EXPECT_DOUBLE_EQ (dq_res.dual ().w (), dual_res1.w () + dual_res2.w ());
+  EXPECT_DOUBLE_EQ (dq_res.dual ().x (), dual_res1.x () + dual_res2.x ());
+  EXPECT_DOUBLE_EQ (dq_res.dual ().y (), dual_res1.y () + dual_res2.y ());
+  EXPECT_DOUBLE_EQ (dq_res.dual ().z (), dual_res1.z () + dual_res2.z ());
+}
+
+TEST (PCL, DualQuaternionScalarMultiplyf)
+{
+  const Eigen::Quaternionf qr = Eigen::Quaternionf (.9f, .1f, -.25f, .15f).normalized ();
+  const Eigen::Quaternionf qd = Eigen::Quaternionf (0, .5f, -2.f, 1.f);
+
+  float fac = 0.75;
+
+  Eigen::DualQuaternion<float> dq (qr, qd);
+
+  Eigen::DualQuaternion<float> dq_res = dq * fac;
+
+  EXPECT_FLOAT_EQ (0.70954424f, dq_res.real ().w ());
+  EXPECT_FLOAT_EQ (0.07883824f, dq_res.real ().x ());
+  EXPECT_FLOAT_EQ (-0.19709562f, dq_res.real ().y ());
+  EXPECT_FLOAT_EQ (0.11825737f, dq_res.real ().z ());
+
+  EXPECT_FLOAT_EQ (0.0f, dq_res.dual ().w ());
+  EXPECT_FLOAT_EQ (0.375f, dq_res.dual ().x ());
+  EXPECT_FLOAT_EQ (-1.5f, dq_res.dual ().y ());
+  EXPECT_FLOAT_EQ (0.75f, dq_res.dual ().z ());
+
+}
+
+TEST (PCL, DualQuaternionScalarMultiplyd)
+{
+  const Eigen::Quaterniond qr = Eigen::Quaterniond (.9, .1, -.25, .15).normalized ();
+  const Eigen::Quaterniond qd = Eigen::Quaterniond (0, .5, -2, 1);
+
+  double fac = 0.75;
+
+  Eigen::DualQuaternion<double> dq (qr, qd);
+
+  Eigen::DualQuaternion<double> dq_res = dq * fac;
+
+  EXPECT_NEAR (0.70954424, dq_res.real ().w (), 1e-7);
+  EXPECT_NEAR (0.07883824, dq_res.real ().x (), 1e-7);
+  EXPECT_NEAR (-0.19709562, dq_res.real ().y (), 1e-7);
+  EXPECT_NEAR (0.11825737, dq_res.real ().z (), 1e-7);
+
+  EXPECT_NEAR (0.0, dq_res.dual ().w (), 1e-7);
+  EXPECT_NEAR (0.375, dq_res.dual ().x (), 1e-7);
+  EXPECT_NEAR (-1.5, dq_res.dual ().y (), 1e-7);
+  EXPECT_NEAR (0.75, dq_res.dual ().z (), 1e-7);
+
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)

@@ -139,7 +139,13 @@ Eigen::DualQuaternion<Scalar>::operator* (const DualQuaternion<Scalar> &a)
   // this * a
   Eigen::DualQuaternion<Scalar> res;
   res.real() = qr * a.real();
-  res.dual() = qr * a.dual() + qd * a.real();
+  QuaternionS dual_1 = qr * a.dual ();
+  QuaternionS dual_2 = qd * a.real ();
+
+  res.dual().w () = dual_1.w () + dual_2.w ();
+  res.dual().x () = dual_1.x () + dual_2.x ();
+  res.dual().y () = dual_1.y () + dual_2.y ();
+  res.dual().z () = dual_1.z () + dual_2.z ();
 
   return (res);
 }
@@ -148,8 +154,9 @@ template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::operator* (const Scalar &a)
 {
   Eigen::DualQuaternion<Scalar> res;
-  res.real() = qr * a;
-  res.dual() = qd * a;
+
+  res.real() = QuaternionS (qr.w () * a, qr.x () * a, qr.y () * a, qr.z () * a);
+  res.dual() = QuaternionS (qd.w () * a, qd.x () * a, qd.y () * a, qd.z () * a);
 
   return (res);
 }
