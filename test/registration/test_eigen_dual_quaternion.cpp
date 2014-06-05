@@ -214,10 +214,41 @@ TEST (PCL, DualQuaternionMatrixInitd)
   EXPECT_DOUBLE_EQ(dq.dual ().z (), qd.z () * 0.5);
 }
 
+TEST (PCL, DualQuaternionNormalizef)
+{
+  Eigen::Quaternionf  qr (frand (), frand (), frand (), frand ());
+  Eigen::Quaternionf  qd (frand (), frand (), frand (), frand ());
+
+  Eigen::DualQuaternion<float> dq (qr, qd);
+
+  dq.normalize ();
+
+  EXPECT_FLOAT_EQ (dq.real ().norm (), 1);
+  //EXPECT_FLOAT_EQ (dq.real ().dot (dq.dual ()), 0); // FIXME Numerical unstability or normal float equality isues?
+  EXPECT_NEAR (dq.real ().dot (dq.dual ()), 0, 1e-5); // FIXME randomly chose 1e-5, is there a theoretical bound? To compute
+
+}
+
+TEST (PCL, DualQuaternionNormalized)
+{
+  Eigen::Quaterniond  qr (drand (), drand (), drand (), drand ());
+  Eigen::Quaterniond  qd (drand (), drand (), drand (), drand ());
+
+  Eigen::DualQuaternion<double> dq (qr, qd);
+
+  dq.normalize ();
+
+  EXPECT_DOUBLE_EQ (dq.real ().norm (), 1);
+  //EXPECT_DOUBLE_EQ (dq.real ().dot (dq.dual ()), 0); // FIXME Numerical unstability ?
+  EXPECT_NEAR (dq.real ().dot (dq.dual ()), 0, 1e-10); // FIXME randomly chose 1e-10, is there a theoretical bound? To compute
+
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)
 {
+  srand (time(NULL));
   testing::InitGoogleTest (&argc, argv);
   return (RUN_ALL_TESTS ());
 }

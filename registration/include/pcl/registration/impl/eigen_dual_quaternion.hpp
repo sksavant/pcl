@@ -85,20 +85,26 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S &tm)
 template<typename Scalar> void
 Eigen::DualQuaternion<Scalar>::normalize ()
 {
-  Scalar sign;
+  Scalar sign = 1;
+  qr.normalize ();
   if (qr.w () < 0)
   {
-    sign = -1;
-  }
-  else
-  {
-    sign = 1;
+    qr = QuaternionS (-qr.w (), -qr.x (), -qr.y (), -qr.z ());
   }
   Scalar norm = qr.norm () * sign;
   // TODO : Check norm==0?
-  qr = qr * (1.0 / norm);
-  qd = qd * (1.0 / norm);
-  qd = qd + qr * (-1 * qr.dot (qd));
+
+  qd.w () = qd.w () / norm;
+  qd.x () = qd.x () / norm;
+  qd.y () = qd.y () / norm;
+  qd.z () = qd.z () / norm;
+
+  Scalar dot_rd = qr.dot (qd);
+
+  qd.w () = qd.w () + qr.w () * (-dot_rd);
+  qd.x () = qd.x () + qr.x () * (-dot_rd);
+  qd.y () = qd.y () + qr.y () * (-dot_rd);
+  qd.z () = qd.z () + qr.z () * (-dot_rd);
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Vector3S

@@ -75,7 +75,6 @@ namespace Eigen{
       inline Vector3S
       getTranslation ();
 
-
       inline DualQuaternion<Scalar>
       operator+ (const DualQuaternion<Scalar> &a);
 
