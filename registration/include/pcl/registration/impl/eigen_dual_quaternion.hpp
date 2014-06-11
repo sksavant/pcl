@@ -178,7 +178,39 @@ Eigen::DualQuaternion<Scalar>::operator! ()
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::log ()
 {
+  // Small angle assumption TODO
   Eigen::DualQuaternion<Scalar> res;
+  // Unitary?
+  const Scalar h0 = std::acos (res.real ().w ());
+  res.real () = qr;
+  res.dual () = qd;
+  res.real ().w () = 0.0;
+  const Scalar ish0 = 1.0 / res.real ().norm ();
+  res.real ().normalize ();
+
+  const Scalar he = - res.dual ().w () * ish0;
+  res.dual ().w () = 0.0;
+
+  QuaternionS rp(res.real ());
+  Scalar factor = - res.real ().dot (res.dual ()) / res.real ().dot (res.real ());
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+  res.dual ().w () = (res.dual ().w () + rp.w ()) * ish0 * h0;
+  res.dual ().x () = (res.dual ().x () + rp.x ()) * ish0 * h0;
+  res.dual ().y () = (res.dual ().y () + rp.y ()) * ish0 * h0;
+  res.dual ().z () = (res.dual ().z () + rp.z ()) * ish0 * h0;
+
+  rp = res.real ();
+  rp = QuaternionS (rp.w () * he, rp.x () * he, rp.y () * he, rp.z () * he);
+
+  res.dual ().w () = (res.dual ().w () + rp.w ()) * 0.5;
+  res.dual ().x () = (res.dual ().x () + rp.x ()) * 0.5;
+  res.dual ().y () = (res.dual ().y () + rp.y ()) * 0.5;
+  res.dual ().z () = (res.dual ().z () + rp.z ()) * 0.5;
+
+  res.real ().w () = res.real ().w () * h0 * 0.5;
+  res.real ().x () = res.real ().x () * h0 * 0.5;
+  res.real ().y () = res.real ().y () * h0 * 0.5;
+  res.real ().z () = res.real ().z () * h0 * 0.5;
 
   return res;
 }
@@ -187,6 +219,38 @@ template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::exp ()
 {
   Eigen::DualQuaternion<Scalar> res;
+
+  res.real () = qr;
+  res.dual () = qd;
+  const Scalar h0 = 2.0 * res.real ().norm ();
+
+  const Scalar he = 4.0 * res.real ().dot (res.dual ()) / h0;
+  const Scalar sh0 = sin (h0);
+  const Scalar ch0 = cos (h0);
+
+  QuaternionS rp (res.real ());
+  Scalar factor = - res.real ().dot (res.dual ()) / res.real ().dot (res.real ());
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+
+  res.dual ().w () = (res.dual ().w () + rp.w ()) * 2.0 / h0 * sh0;
+  res.dual ().x () = (res.dual ().x () + rp.x ()) * 2.0 / h0 * sh0;
+  res.dual ().y () = (res.dual ().y () + rp.y ()) * 2.0 / h0 * sh0;
+  res.dual ().z () = (res.dual ().z () + rp.z ()) * 2.0 / h0 * sh0;
+
+  rp = res.real ();
+  factor = he * ch0 * 2.0 / h0;
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+
+  res.dual ().w () = (res.dual ().w () + rp.w ()) * -he * sh0;
+  res.dual ().x () = (res.dual ().x () + rp.x ()) * -he * sh0;
+  res.dual ().y () = (res.dual ().y () + rp.y ()) * -he * sh0;
+  res.dual ().z () = (res.dual ().z () + rp.z ()) * -he * sh0;
+
+  //res.real ().w () = res.real ().w () * sh0 * 2.0 / h0;
+  res.real ().w () = ch0;
+  res.real ().x () = res.real ().x () * sh0 * 2.0 / h0;
+  res.real ().y () = res.real ().y () * sh0 * 2.0 / h0;
+  res.real ().z () = res.real ().z () * sh0 * 2.0 / h0;
 
   return res;
 }
