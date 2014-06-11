@@ -454,6 +454,32 @@ TEST (PCL, DualQuaternionAddf)
 
 }
 
+TEST (PCL, DualQuaternionAddd)
+{
+  const Eigen::Quaterniond qr1 = Eigen::Quaterniond (.9, .1, -.25, .15);
+  const Eigen::Quaterniond qd1 = Eigen::Quaterniond (0, .5, -2, 1);
+
+  Eigen::DualQuaternion<double> dq1 (qr1, qd1);
+
+  const Eigen::Quaterniond qr2 = Eigen::Quaterniond (.67, .86, .25, -.95);
+  const Eigen::Quaterniond qd2 = Eigen::Quaterniond (0, .6, -8, .7);
+
+  Eigen::DualQuaternion<double> dq2 (qr2, qd2);
+
+  Eigen::DualQuaternion<double> dq_res = dq1 + dq2;
+
+  EXPECT_NEAR (1.57, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (0.96, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.0, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.8, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (1.1, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (-10.0, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (1.7, dq_res.dual ().z (), 1e-5);
+
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)
