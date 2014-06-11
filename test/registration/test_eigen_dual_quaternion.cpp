@@ -255,9 +255,9 @@ TEST (PCL, DualQuaternionGetTranslationf)
   Eigen::Vector3f v_res = dq.getTranslation ();
 
   // FIXME : expect_float_eq sometimes fails use expect_near maybe?
-  EXPECT_FLOAT_EQ (v_res (0), v (0));
-  EXPECT_FLOAT_EQ (v_res (1), v (1));
-  EXPECT_FLOAT_EQ (v_res (2), v (2));
+  EXPECT_NEAR (v_res (0), v (0), 1e-5);
+  EXPECT_NEAR (v_res (1), v (1), 1e-5);
+  EXPECT_NEAR (v_res (2), v (2), 1e-5);
 
 }
 
@@ -272,9 +272,9 @@ TEST (PCL, DualQuaternionGetTranslationd)
   Eigen::Vector3d v_res = dq.getTranslation ();
 
   // FIXME : expect_double_eq sometimes fails use expect_near maybe?
-  EXPECT_DOUBLE_EQ (v_res (0), v (0));
-  EXPECT_DOUBLE_EQ (v_res (1), v (1));
-  EXPECT_DOUBLE_EQ (v_res (2), v (2));
+  EXPECT_NEAR (v_res (0), v (0), 1e-5);
+  EXPECT_NEAR (v_res (1), v (1), 1e-5);
+  EXPECT_NEAR (v_res (2), v (2), 1e-5);
 
 }
 
