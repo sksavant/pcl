@@ -428,6 +428,32 @@ TEST (PCL, DualQuaternionScalarMultiplyd)
 
 }
 
+TEST (PCL, DualQuaternionAddf)
+{
+  const Eigen::Quaternionf qr1 = Eigen::Quaternionf (.9f, .1f, -.25f, .15f);
+  const Eigen::Quaternionf qd1 = Eigen::Quaternionf (0, .5f, -2.f, 1.f);
+
+  Eigen::DualQuaternion<float> dq1 (qr1, qd1);
+
+  const Eigen::Quaternionf qr2 = Eigen::Quaternionf (.67f, .86f, .25f, -.95f);
+  const Eigen::Quaternionf qd2 = Eigen::Quaternionf (0, .6f, -8.f, .7f);
+
+  Eigen::DualQuaternion<float> dq2 (qr2, qd2);
+
+  Eigen::DualQuaternion<float> dq_res = dq1 + dq2;
+
+  EXPECT_NEAR (1.57f, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (0.96f, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.0f, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.8f, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0f, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (1.1f, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (-10.0f, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (1.7f, dq_res.dual ().z (), 1e-5);
+
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)

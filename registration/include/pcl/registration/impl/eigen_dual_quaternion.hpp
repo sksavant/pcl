@@ -125,10 +125,10 @@ Eigen::DualQuaternion<Scalar>::operator+ (const DualQuaternion<Scalar> &a)
   res.real ().y () = qr.y () + a.real ().y ();
   res.real ().z () = qr.z () + a.real ().z ();
 
-  res.dual ().w () = qr.w () + a.real ().w();
-  res.dual ().x () = qr.x () + a.real ().x();
-  res.dual ().y () = qr.y () + a.real ().y();
-  res.dual ().z () = qr.z () + a.real ().z();
+  res.dual ().w () = qd.w () + a.dual ().w ();
+  res.dual ().x () = qd.x () + a.dual ().x ();
+  res.dual ().y () = qd.y () + a.dual ().y ();
+  res.dual ().z () = qd.z () + a.dual ().z ();
 
   return (res);
 }
