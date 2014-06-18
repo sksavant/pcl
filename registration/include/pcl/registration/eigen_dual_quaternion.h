@@ -88,7 +88,7 @@ namespace Eigen{
       operator~ ();
 
       inline DualQuaternion<Scalar>
-      operator! ();
+      conjugate ();
 
       inline DualQuaternion<Scalar>
       log ();

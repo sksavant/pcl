@@ -169,7 +169,7 @@ Eigen::DualQuaternion<Scalar>::operator~ ()
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
-Eigen::DualQuaternion<Scalar>::operator! ()
+Eigen::DualQuaternion<Scalar>::conjugate ()
 {
   Eigen::DualQuaternion<Scalar> res (qr.conjugate (), qd.conjugate ());
   return res;
@@ -193,7 +193,7 @@ Eigen::DualQuaternion<Scalar>::log ()
 
   QuaternionS rp(res.real ());
   Scalar factor = - res.real ().dot (res.dual ()) / res.real ().dot (res.real ());
-  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y () * factor, rp.z () * factor);
   res.dual ().w () = (res.dual ().w () + rp.w ()) * ish0 * h0;
   res.dual ().x () = (res.dual ().x () + rp.x ()) * ish0 * h0;
   res.dual ().y () = (res.dual ().y () + rp.y ()) * ish0 * h0;
@@ -230,7 +230,7 @@ Eigen::DualQuaternion<Scalar>::exp ()
 
   QuaternionS rp (res.real ());
   Scalar factor = - res.real ().dot (res.dual ()) / res.real ().dot (res.real ());
-  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y () * factor, rp.z () * factor);
 
   res.dual ().w () = (res.dual ().w () + rp.w ()) * 2.0 / h0 * sh0;
   res.dual ().x () = (res.dual ().x () + rp.x ()) * 2.0 / h0 * sh0;
@@ -239,7 +239,7 @@ Eigen::DualQuaternion<Scalar>::exp ()
 
   rp = res.real ();
   factor = he * ch0 * 2.0 / h0;
-  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y ().factor (), rp.z ().factor ());
+  rp = QuaternionS (rp.w () * factor, rp.x () * factor, rp.y () * factor, rp.z () * factor);
 
   res.dual ().w () = (res.dual ().w () + rp.w ()) * -he * sh0;
   res.dual ().x () = (res.dual ().x () + rp.x ()) * -he * sh0;
