@@ -525,6 +525,51 @@ TEST (PCL, DualQuaternionLogd)
   EXPECT_NEAR (1.7, dq_res.dual ().z (), 1e-5);
 }
 
+TEST (PCL, DualQuaternionExpf)
+{
+  const Eigen::Quaternionf qr = Eigen::Quaternionf (.9f, .1f, -.25f, .15f);
+  const Eigen::Quaternionf qd = Eigen::Quaternionf (0, .5f, -2.f, 1.f);
+
+  Eigen::DualQuaternion<float> dq (qr, qd);
+
+  Eigen::DualQuaternion<float> dq_res = dq.exp ();
+
+  // TODO : Manually calculate the answer
+
+  EXPECT_NEAR (1.57f, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (0.96f, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.0f, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.8f, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0f, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (1.1f, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (-10.0f, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (1.7f, dq_res.dual ().z (), 1e-5);
+
+}
+
+TEST (PCL, DualQuaternionExpd)
+{
+  const Eigen::Quaterniond qr = Eigen::Quaterniond (.9, .1, -.25, .15);
+  const Eigen::Quaterniond qd = Eigen::Quaterniond (0, .5, -2, 1);
+
+  Eigen::DualQuaternion<double> dq (qr, qd);
+
+  Eigen::DualQuaternion<double> dq_res = dq.exp ();
+
+  // TODO : Manually calculate the answer
+
+  EXPECT_NEAR (1.57, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (0.96, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.0, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.8, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (1.1, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (-10.0, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (1.7, dq_res.dual ().z (), 1e-5);
+}
+
 /* ---[ */
 int
 main (int argc, char** argv)
