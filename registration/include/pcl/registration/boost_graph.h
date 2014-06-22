@@ -40,12 +40,28 @@
 #ifndef PCL_REGISTRATION_BOOST_GRAPH_H_
 #define PCL_REGISTRATION_BOOST_GRAPH_H_
 
+#if defined __GNUC__
+#  pragma GCC system_header 
+#endif
+
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include <Eigen/StdVector>
 #include <list>
 
 namespace boost
 {
+
+  struct bfs_order_visitor : public boost::default_bfs_visitor
+  {
+      template<typename Vertex, typename Graph> void
+      discover_vertex(Vertex v, const Graph &g)
+      {
+        bfs_ordered_vertices.push_back(static_cast<int>(v));
+      }
+
+      std::vector<int> bfs_ordered_vertices;
+  };
 
   struct eigen_vecS
   {

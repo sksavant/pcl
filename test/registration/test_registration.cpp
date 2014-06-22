@@ -61,6 +61,7 @@
 #include <pcl/registration/ppf_registration.h>
 #include <pcl/registration/ndt.h>
 #include <pcl/registration/sample_consensus_prerejective.h>
+#include <pcl/registration/dq_diffusion.h>
 // We need Histogram<2> to function, so we'll explicitely add kdtree_flann.hpp here
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 //(pcl::Histogram<2>)
@@ -808,6 +809,20 @@ TEST (PCL, SampleConsensusPrerejective)
   }
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TEST (PCL, DQDiffusion)
+{
+  pcl::registration::DQDiffusion<PointXYZ, float> reg;
+  PointCloud<PointXYZ>::Ptr cloud_source_ptr = cloud_source.makeShared (),
+       cloud_target_ptr = cloud_target.makeShared ();
+  Eigen::Matrix<float, 4,4> t;
+  reg.addPointCloud(cloud_source_ptr);
+  reg.addPointCloud(cloud_target_ptr);
+  reg.addPairwiseTransformation(0, 1, t);
+  reg.compute();
+
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 TEST (PCL, PyramidFeatureHistogram)

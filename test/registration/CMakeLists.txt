@@ -21,3 +21,6 @@ PCL_ADD_TEST(correspondence_rejectors test_correspondence_rejectors
              LINK_WITH pcl_gtest pcl_io pcl_registration pcl_features
              ARGUMENTS "${PCL_SOURCE_DIR}/test/bunny.pcd")
 
+PCL_ADD_TEST(dual_quaternion_test test_eigen_dual_quaternion
+             FILES test_eigen_dual_quaternion.cpp
+             LINK_WITH pcl_gtest)
