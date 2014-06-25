@@ -11,6 +11,7 @@ PCL_ADD_DOC("${SUBSYS_NAME}")
 if(build)
     set(incs 
         "include/pcl/${SUBSYS_NAME}/eigen.h"
+        "include/pcl/${SUBSYS_NAME}/eigen_dual_quaternion.h"
         "include/pcl/${SUBSYS_NAME}/boost.h"
         "include/pcl/${SUBSYS_NAME}/boost_graph.h"
         "include/pcl/${SUBSYS_NAME}/convergence_criteria.h"
@@ -114,6 +115,7 @@ if(build)
         "include/pcl/${SUBSYS_NAME}/impl/gicp.hpp"
         "include/pcl/${SUBSYS_NAME}/impl/sample_consensus_prerejective.hpp"
         "include/pcl/${SUBSYS_NAME}/impl/dq_diffusion.hpp"
+        "include/pcl/${SUBSYS_NAME}/impl/eigen_dual_quaternion.hpp"
         )
 
     set(srcs
