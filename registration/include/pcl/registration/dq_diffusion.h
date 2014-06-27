@@ -147,6 +147,9 @@ namespace pcl
         PointCloudPtr
         getConcatenatedCloud () const;
 
+        Scalar
+        getFitnessScore ();
+
       protected:
         void
         linearDiffusion ();

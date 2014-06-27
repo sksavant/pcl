@@ -252,6 +252,13 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getConcatenatedCloud () const
   return (out);
 }
 
+template<typename PointT, typename Scalar> inline Scalar
+pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
+{
+  // TODO RMS error same as rmste() in demo code
+  return 0;
+}
+
 #define PCL_INSTANTIATE_DQ_DIFFUSION(T) template class PCL_EXPORTS pcl::registration::DQDiffusion<T>;
 
 #endif // PCL_REGISTRATION_IMPL_DQ_DIFFUSION_HPP_
