@@ -107,6 +107,15 @@ Eigen::DualQuaternion<Scalar>::normalize ()
   qd.z () = qd.z () + qr.z () * (-dot_rd);
 }
 
+template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Matrix4S
+Eigen::DualQuaternion<Scalar>::getMatrix ()
+{
+  Eigen::Transform<Scalar, 3, Eigen::Affine> transform;
+  transform.rotate (qr);
+  transform.translate (getTranslation ());
+  return transform.matrix ();
+}
+
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Vector3S
 Eigen::DualQuaternion<Scalar>::getTranslation ()
 {

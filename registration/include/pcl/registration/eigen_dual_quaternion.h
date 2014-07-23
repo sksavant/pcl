@@ -72,6 +72,9 @@ namespace Eigen{
       inline void
       normalize ();
 
+      inline Matrix4S
+      getMatrix ();
+
       inline Vector3S
       getTranslation ();
 

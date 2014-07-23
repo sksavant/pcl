@@ -125,7 +125,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
   {
     boost::tuples::tie (e, present) = add_edge (source_vertex, target_vertex, *view_graph_);
   }
-  (*view_graph_)[e].transformation_ = edge_transformation;
+  (*view_graph_)[e].transformation_ = Eigen::DualQuaternion<Scalar> (edge_transformation);
   (*view_graph_)[e].weight_ = weight;
 }
 
@@ -210,7 +210,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       boost::tuples::tie (e, present) = edge (source, target, *view_graph_);
       if (present)
       {
-        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].transformation_);
+        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].transformation_.getMatrix ());
         Vector6 p = Vector6::Zero ();
         pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
         (*view_graph_)[target].pose_ = p;
