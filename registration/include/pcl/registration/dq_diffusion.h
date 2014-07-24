@@ -85,7 +85,8 @@ namespace pcl
         struct EdgeProperties
         {
           //Matrix4 transformation_; // TODO change to DQ
-          Eigen::DualQuaternion<Scalar> transformation_;
+          Eigen::DualQuaternion<Scalar> pairwise_transform_;
+          Eigen::DualQuaternion<Scalar> diffused_transform_;
           Scalar weight_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };

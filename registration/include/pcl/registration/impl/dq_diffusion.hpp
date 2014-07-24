@@ -125,7 +125,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
   {
     boost::tuples::tie (e, present) = add_edge (source_vertex, target_vertex, *view_graph_);
   }
-  (*view_graph_)[e].transformation_ = Eigen::DualQuaternion<Scalar> (edge_transformation);
+  (*view_graph_)[e].pairwise_transform_ = Eigen::DualQuaternion<Scalar> (edge_transformation);
   (*view_graph_)[e].weight_ = weight;
 }
 
@@ -210,7 +210,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       boost::tuples::tie (e, present) = edge (source, target, *view_graph_);
       if (present)
       {
-        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].transformation_.getMatrix ());
+        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].pairwise_transform_.getMatrix ());
         Vector6 p = Vector6::Zero ();
         pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
         (*view_graph_)[target].pose_ = p;
@@ -256,6 +256,16 @@ template<typename PointT, typename Scalar> inline Scalar
 pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
 {
   // TODO RMS error same as rmste() in demo code
+  double ste = 0.0;
+  typename ViewGraph::vertex_iterator v, v_end;
+  typename ViewGraph::out_edge_iterator e, e_end;
+  for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+  {
+    for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
+    {
+      std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
+    }
+  }
   return 0;
 }
 
