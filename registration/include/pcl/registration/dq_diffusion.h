@@ -79,6 +79,7 @@ namespace pcl
         {
           PointCloudPtr cloud_;
           Vector6 pose_; // initial estimate input
+          Scalar weight_sum_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 

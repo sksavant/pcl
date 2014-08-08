@@ -172,7 +172,24 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex 
 template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
 {
-
+  for (int rep = 0; rep != diffusion_iterations_; ++rep)
+  {
+    typename ViewGraph::vertex_iterator v, v_end;
+    typename ViewGraph::out_edge_iterator e, e_end;
+    for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+    {
+      Eigen::DualQuaternion<Scalar> q2; //vector of Q of each pose?
+      for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
+      {
+        Eigen::DualQuaternion<Scalar> qi = (*view_graph_)[(*e)].diffused_transform_ * (*view_graph_)[(*e)].pairwise_transform_;
+        const Scalar w = copysign(1.0, (*view_graph_)[(*e)].diffused_transform_.real ().dot (qi.real ()))*(*view_graph_)[(*e)].weight_/(*view_graph_)[(*v)].weight_sum_;
+        q2 = q2 + qi * w;
+        std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
+      }
+      q2.normalize ();
+    }
+    //Stuff TODO
+  }
 }
 
 template<typename PointT, typename Scalar> void
@@ -263,10 +280,16 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
   {
     for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
     {
-      std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
+      Eigen::DualQuaternion<Scalar> q_e = (*view_graph_)[(*e)].pairwise_transform_;
+      //Eigen::DualQuaternion<Scalar> q = ((!q_e)*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
+      Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
+      q.normalize ();
+      q = q.log();
+      ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
+      std::cerr << "Vertex " << *v << " : Edge " << *e << " : STE " << ste << "\n";
     }
   }
-  return 0;
+  return std::sqrt(ste);
 }
 
 #define PCL_INSTANTIATE_DQ_DIFFUSION(T) template class PCL_EXPORTS pcl::registration::DQDiffusion<T>;
