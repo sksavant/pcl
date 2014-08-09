@@ -225,8 +225,17 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
   // Issue : More than one connected components : No transformation from 0 to some vetices : Handle it?
   // TODO=
 
-  boost::bfs_order_visitor vis;
+  std::vector<int> order;
+  boost::bfs_order_visitor vis  = boost::bfs_order_visitor(order);
+  boost::bgl_named_params<boost::bfs_order_visitor, boost::graph_visitor_t, boost::no_property> vis_copy = boost::visitor (vis);
   boost::breadth_first_search(*view_graph_, vertex(0, *view_graph_), boost::visitor(vis));
+  //boost::undirected_dfs(*view_graph_, vertex(0, *view_graph_), vis);
+
+  for (int i=0; i<order.size (); ++i)
+  {
+    std::cerr << order[i] << " ";
+  }
+  std::cerr << order.size () << "\n";
 
   int num_vertices = getNumVertices();
   Edge e;
@@ -245,6 +254,8 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       {
         Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].pairwise_transform_.getMatrix ());
         (*view_graph_)[target].pose_ = Eigen::DualQuaternion<Scalar> (new_transform.matrix ());
+        Vector6 p = getPose (target);
+        std::cerr << p(0) << p(1) << p(2) << p(3) << p(4) << p(5) << "\n";
       }
     }
   }
@@ -295,12 +306,13 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
     for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
     {
       Eigen::DualQuaternion<Scalar> q_e = (*view_graph_)[(*e)].pairwise_transform_;
-      //Eigen::DualQuaternion<Scalar> q = ((!q_e)*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
+      Eigen::DualQuaternion<Scalar> q = (q_e.conjugate () * (*view_graph_)[target (*e, *view_graph_)].pose_ * (*view_graph_)[(*v)].pose_.conjugate ());
+      q.normalize ();
+      q = q.log ();
+      ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
+      //Eigen::DualQuaternion<Scalar> q = ((q_e.conjuate ())*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
       //Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
-      //q.normalize ();
-      //q = q.log();
-      //ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
-      std::cerr << "Vertex " << *v << " : Edge " << *e << " : STE " << ste << "\n";
+      std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : STE " << ste << "\n";
     }
   }
   return std::sqrt(ste);
