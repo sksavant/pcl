@@ -69,6 +69,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPointCloud (const PointCloudP
 {
   Vertex v = add_vertex(*view_graph_);
   (*view_graph_)[v].cloud_ = cloud;
+  (*view_graph_)[v].weight_sum_ = 0.0;
   if (v == 0 && pose != Vector6::Zero ())
   {
     PCL_WARN("[pcl::registration::DQDiffusion::addPointCloud] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
@@ -125,8 +126,16 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
   {
     boost::tuples::tie (e, present) = add_edge (source_vertex, target_vertex, *view_graph_);
   }
+  else
+  {
+    Scalar current_weight = (*view_graph_)[e].weight_;
+    (*view_graph_)[source_vertex].weight_sum_ -= current_weight;
+    (*view_graph_)[target_vertex].weight_sum_ -= current_weight;
+  }
   (*view_graph_)[e].pairwise_transform_ = Eigen::DualQuaternion<Scalar> (edge_transformation);
   (*view_graph_)[e].weight_ = weight;
+  (*view_graph_)[source_vertex].weight_sum_ += weight;
+  (*view_graph_)[target_vertex].weight_sum_ += weight;
 }
 
 template<typename PointT, typename Scalar> inline void
@@ -188,9 +197,9 @@ pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
       Eigen::DualQuaternion<Scalar> q2; //vector of Q of each pose?
       for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
       {
-        Eigen::DualQuaternion<Scalar> qi = (*view_graph_)[(*e)].diffused_transform_ * (*view_graph_)[(*e)].pairwise_transform_;
-        const Scalar w = copysign(1.0, (*view_graph_)[(*e)].diffused_transform_.real ().dot (qi.real ()))*(*view_graph_)[(*e)].weight_/(*view_graph_)[(*v)].weight_sum_;
-        q2 = q2 + qi * w;
+        //Eigen::DualQuaternion<Scalar> qi = (*view_graph_)[(*e)].diffused_transform_ * (*view_graph_)[(*e)].pairwise_transform_;
+        //const Scalar w = copysign(1.0, (*view_graph_)[(*e)].diffused_transform_.real ().dot (qi.real ()))*(*view_graph_)[(*e)].weight_/(*view_graph_)[(*v)].weight_sum_;
+        //q2 = q2 + qi * w;
         std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
       }
       q2.normalize ();
@@ -287,10 +296,10 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
     {
       Eigen::DualQuaternion<Scalar> q_e = (*view_graph_)[(*e)].pairwise_transform_;
       //Eigen::DualQuaternion<Scalar> q = ((!q_e)*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
-      Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
-      q.normalize ();
-      q = q.log();
-      ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
+      //Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
+      //q.normalize ();
+      //q = q.log();
+      //ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
       std::cerr << "Vertex " << *v << " : Edge " << *e << " : STE " << ste << "\n";
     }
   }
