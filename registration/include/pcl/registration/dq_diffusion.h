@@ -78,7 +78,8 @@ namespace pcl
         struct VertexProperties
         {
           PointCloudPtr cloud_;
-          Vector6 pose_; // initial estimate input
+          //Vector6 pose_; // initial estimate input
+          Eigen::DualQuaternion<Scalar> pose_;
           Scalar weight_sum_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };

@@ -72,10 +72,10 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPointCloud (const PointCloudP
   if (v == 0 && pose != Vector6::Zero ())
   {
     PCL_WARN("[pcl::registration::DQDiffusion::addPointCloud] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
-    (*view_graph_)[v].pose_ = Vector6::Zero ();
+    (*view_graph_)[v].pose_ = Eigen::DualQuaternion<Scalar> ();//Vector6::Zero ();
     return (v);
   }
-  (*view_graph_)[v].pose_ = pose;
+  (*view_graph_)[v].pose_ = Eigen::DualQuaternion<Scalar> (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)).matrix());
   return (v);
 }
 
@@ -148,7 +148,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::setPose (const Vertex &vertex, c
     PCL_ERROR("[pcl::registration::DQDiffusion::setPose] The pose estimate is ignored for the first cloud in the graph since that will become the reference pose.\n");
     return;
   }
-  (*view_graph_)[vertex].pose_ = pose;
+  (*view_graph_)[vertex].pose_ = Eigen::DualQuaternion<Scalar> (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)).matrix());
 }
 
 template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::Vector6
@@ -159,14 +159,21 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getPose (const Vertex &vertex) c
     PCL_ERROR("[pcl::registration::DQDiffusion::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
     return (Vector6::Zero ());
   }
-  return ((*view_graph_)[vertex].pose_);
+  Affine3 new_transform = Affine3 (getTransformation (vertex));
+  Vector6 p = Vector6::Zero ();
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  return (p);
 }
 
 template<typename PointT, typename Scalar> inline typename pcl::registration::DQDiffusion<PointT, Scalar>::Matrix4
 pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex &vertex) const
 {
-  Vector6 pose = getPose (vertex);
-  return (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)).matrix());
+  if (vertex >= getNumVertices ())
+  {
+    PCL_ERROR("[pcl::registration::DQDiffusion::getPose] You are attempting to get a pose estimate from a non-existing graph vertex.\n");
+    return (Matrix4::Zero ());
+  }
+  return ((*view_graph_)[vertex].pose_. getMatrix ());
 }
 
 template<typename PointT, typename Scalar> void
@@ -218,7 +225,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
   for (int v = 1; v < num_vertices - 1; ++v)
   {
     Vertex target = v;
-    if ((*view_graph_)[target].pose_ != Vector6::Zero()){
+    if (getPose (target) != Vector6::Zero()){
       continue;
     }
     for (int u = 0; u < v; ++u)
@@ -228,15 +235,13 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       if (present)
       {
         Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].pairwise_transform_.getMatrix ());
-        Vector6 p = Vector6::Zero ();
-        pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
-        (*view_graph_)[target].pose_ = p;
+        (*view_graph_)[target].pose_ = Eigen::DualQuaternion<Scalar> (new_transform.matrix ());
       }
     }
   }
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
-  // Iterate for num_iterations time
+  // Iterate for diffusion_iterations_ times
   if (linear_approximation_)
   {
     linearDiffusion ();
