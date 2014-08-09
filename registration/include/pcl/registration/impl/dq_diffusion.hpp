@@ -227,28 +227,25 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 
   std::vector<int> order;
   boost::bfs_order_visitor vis  = boost::bfs_order_visitor(order);
-  boost::bgl_named_params<boost::bfs_order_visitor, boost::graph_visitor_t, boost::no_property> vis_copy = boost::visitor (vis);
   boost::breadth_first_search(*view_graph_, vertex(0, *view_graph_), boost::visitor(vis));
   //boost::undirected_dfs(*view_graph_, vertex(0, *view_graph_), vis);
 
-  for (int i=0; i<order.size (); ++i)
-  {
-    std::cerr << order[i] << " ";
-  }
-  std::cerr << order.size () << "\n";
+  // order.size() should be same as num_vertices
+  // int num_vertices = getNumVertices();
 
-  int num_vertices = getNumVertices();
   Edge e;
   bool present;
-  for (int v = 1; v < num_vertices - 1; ++v)
+  for (int v = 1; v < order.size (); ++v)
   {
-    Vertex target = v;
-    if (getPose (target) != Vector6::Zero()){
+    Vertex target = order[v];
+    if (getTransformation (target) != Eigen::DualQuaternion<Scalar> ().getMatrix ())
+    {
+      std::cerr << "Continuing\n";
       continue;
     }
     for (int u = 0; u < v; ++u)
     {
-      Vertex source = u;
+      Vertex source = order[u];
       boost::tuples::tie (e, present) = edge (source, target, *view_graph_);
       if (present)
       {

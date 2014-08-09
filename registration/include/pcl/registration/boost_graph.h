@@ -63,9 +63,7 @@ namespace boost
       template<typename Vertex, typename Graph> void
       discover_vertex(const Vertex v, const Graph &g)
       {
-        std::cerr << "Discovering " << v << " ";
         bfs_ordered_vertices.push_back(static_cast<int>(v));
-        std::cerr << bfs_ordered_vertices.size () << "  ";
       }
 
       std::vector<int>& bfs_ordered_vertices;
