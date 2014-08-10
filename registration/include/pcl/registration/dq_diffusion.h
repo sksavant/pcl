@@ -161,6 +161,9 @@ namespace pcl
         void
         manifoldDiffusion ();
 
+        inline Eigen::DualQuaternion<Scalar>
+        getPairwiseTransformation (Edge &e, Vertex& source, Vertex& target);
+
       private:
         /** \brief The internal view graph structure. */
         ViewGraphPtr view_graph_;

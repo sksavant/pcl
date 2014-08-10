@@ -214,6 +214,22 @@ pcl::registration::DQDiffusion<PointT, Scalar>::manifoldDiffusion ()
 
 }
 
+
+template<typename PointT, typename Scalar> inline Eigen::DualQuaternion<Scalar>
+pcl::registration::DQDiffusion<PointT, Scalar>::getPairwiseTransformation (Edge &e, Vertex& source, Vertex& target)
+{
+  if (target > source)
+  {
+    return (*view_graph_)[e].pairwise_transform_;
+  }
+  else
+  {
+    return Eigen::DualQuaternion<Scalar> ((Affine3 ((*view_graph_)[e].pairwise_transform_.getMatrix ())).inverse (Eigen::Affine).matrix ());
+
+  }
+
+}
+
 template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 {
@@ -240,8 +256,8 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
     Vertex target = order[v];
     if (getTransformation (target) != Eigen::DualQuaternion<Scalar> ().getMatrix ())
     {
-      std::cerr << "Continuing\n";
-      continue;
+      std::cerr << "Continuing " << target << "\n";
+      //continue;
     }
     for (int u = 0; u < v; ++u)
     {
@@ -249,10 +265,12 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       boost::tuples::tie (e, present) = edge (source, target, *view_graph_);
       if (present)
       {
-        Affine3 new_transform = Affine3 (getTransformation (source) * (*view_graph_)[e].pairwise_transform_.getMatrix ());
+        Affine3 new_transform = Affine3 (getTransformation (source) * getPairwiseTransformation (e, source, target).getMatrix ());
         (*view_graph_)[target].pose_ = Eigen::DualQuaternion<Scalar> (new_transform.matrix ());
         Vector6 p = getPose (target);
+        std::cerr << source << " " << target << "\n";
         std::cerr << p(0) << p(1) << p(2) << p(3) << p(4) << p(5) << "\n";
+        break;
       }
     }
   }
@@ -302,7 +320,10 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
   {
     for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
     {
-      Eigen::DualQuaternion<Scalar> q_e = (*view_graph_)[(*e)].pairwise_transform_;
+      Edge e_edge = (*e);
+      Vertex source_v = (*v);
+      Vertex target_v = boost::target ((*e), (*view_graph_));
+      Eigen::DualQuaternion<Scalar> q_e = getPairwiseTransformation (e_edge, source_v, target_v);
       Eigen::DualQuaternion<Scalar> q = (q_e.conjugate () * (*view_graph_)[target (*e, *view_graph_)].pose_ * (*view_graph_)[(*v)].pose_.conjugate ());
       q.normalize ();
       q = q.log ();
