@@ -261,6 +261,7 @@ Eigen::DualQuaternion<Scalar>::exp ()
   res.real ().y () = res.real ().y () * sh0 * 2.0 / h0;
   res.real ().z () = res.real ().z () * sh0 * 2.0 / h0;
 
+  res.normalize ();
   return res;
 }
 
