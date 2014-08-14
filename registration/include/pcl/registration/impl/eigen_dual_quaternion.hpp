@@ -193,6 +193,7 @@ Eigen::DualQuaternion<Scalar>::log ()
   const Scalar h0 = std::acos (res.real ().w ());
   res.real () = qr;
   res.dual () = qd;
+
   res.real ().w () = 0.0;
   const Scalar ish0 = 1.0 / res.real ().norm ();
   res.real ().normalize ();

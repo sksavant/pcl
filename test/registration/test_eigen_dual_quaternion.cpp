@@ -480,6 +480,7 @@ TEST (PCL, DualQuaternionAddd)
 
 }
 
+/*
 TEST (PCL, DualQuaternionLogf)
 {
   const Eigen::Quaternionf qr = Eigen::Quaternionf (.9f, .1f, -.25f, .15f);
@@ -568,6 +569,48 @@ TEST (PCL, DualQuaternionExpd)
   EXPECT_NEAR (1.1, dq_res.dual ().x (), 1e-5);
   EXPECT_NEAR (-10.0, dq_res.dual ().y (), 1e-5);
   EXPECT_NEAR (1.7, dq_res.dual ().z (), 1e-5);
+}
+*/
+
+TEST (PCL, DualQuaternionConjugatef)
+{
+  const Eigen::Quaternionf qr = Eigen::Quaternionf (.9f, .1f, -.25f, .15f);
+  const Eigen::Quaternionf qd = Eigen::Quaternionf (0, .5f, -2.f, 1.f);
+
+  Eigen::DualQuaternion<float> dq (qr, qd);
+
+  Eigen::DualQuaternion<float> dq_res = dq.conjugate ();
+
+  EXPECT_NEAR (0.9f, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (-0.1f, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.25f, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.15f, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0f, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (-0.5, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (2.0f, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (-1.0f, dq_res.dual ().z (), 1e-5);
+
+}
+
+TEST(PCL, DualQuaternionConjugated)
+{
+  const Eigen::Quaterniond qr = Eigen::Quaterniond (.9, .1, -.25, .15);
+  const Eigen::Quaterniond qd = Eigen::Quaterniond (0, .5, -2, 1);
+
+  Eigen::DualQuaternion<double> dq (qr, qd);
+
+  Eigen::DualQuaternion<double> dq_res = dq.conjugate ();
+
+  EXPECT_NEAR (0.9, dq_res.real ().w (), 1e-5);
+  EXPECT_NEAR (-0.1, dq_res.real ().x (), 1e-5);
+  EXPECT_NEAR (0.25, dq_res.real ().y (), 1e-5);
+  EXPECT_NEAR (-0.15, dq_res.real ().z (), 1e-5);
+
+  EXPECT_NEAR (0.0, dq_res.dual ().w (), 1e-5);
+  EXPECT_NEAR (-0.5, dq_res.dual ().x (), 1e-5);
+  EXPECT_NEAR (2.0, dq_res.dual ().y (), 1e-5);
+  EXPECT_NEAR (-1.0, dq_res.dual ().z (), 1e-5);
 }
 
 /* ---[ */
