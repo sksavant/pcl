@@ -208,20 +208,41 @@ pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
   {
     typename ViewGraph::vertex_iterator v, v_end;
     typename ViewGraph::out_edge_iterator e, e_end;
+    std::vector<Eigen::DualQuaternion<Scalar> > q2 (getNumVertices ()); //vector of Q of each pose?
     for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
     {
-      Eigen::DualQuaternion<Scalar> q2; //vector of Q of each pose?
+      Vertex source_v = (*v);
       for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
       {
-        //Eigen::DualQuaternion<Scalar> qi = (*view_graph_)[(*e)].diffused_transform_ * (*view_graph_)[(*e)].pairwise_transform_;
-        //const Scalar w = copysign(1.0, (*view_graph_)[(*e)].diffused_transform_.real ().dot (qi.real ()))*(*view_graph_)[(*e)].weight_/(*view_graph_)[(*v)].weight_sum_;
+        Edge e_edge = (*e);
+        Vertex target_v = boost::target ((*e), (*view_graph_));
+        Eigen::DualQuaternion<Scalar> q_e = getPairwiseTransformation (e_edge, source_v, target_v);
+
+        Eigen::DualQuaternion<Scalar> qi = q_e.conjugate () * (*view_graph_)[target_v].pose_;
+        const Scalar w = copysign(1.0, (*view_graph_)[source_v].pose_.real ().dot (qi.real ())) * (*view_graph_)[e_edge].weight_ / (*view_graph_)[source_v].weight_sum_;
+
+        q2[source_v] = q2[source_v] + (qi * w);
         //q2 = q2 + qi * w;
         std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
       }
-      q2.normalize ();
+      q2[source_v].normalize ();
     }
-    //Stuff TODO
+    for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+    {
+      Vertex source_v = (*v);
+      (*view_graph_)[source_v].pose_ = q2[source_v];
+    }
   }
+  Vertex start = 0;
+  Eigen::DualQuaternion<Scalar> st = (*view_graph_)[start].pose_.conjugate ();
+  typename ViewGraph::vertex_iterator v, v_end;
+  for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+  {
+    Vertex v_iter = (*v);
+    (*view_graph_)[v_iter].pose_ = ((*view_graph_)[v_iter].pose_ * st);
+    (*view_graph_)[v_iter].pose_.normalize ();
+  }
+
 }
 
 template<typename PointT, typename Scalar> void
