@@ -76,7 +76,15 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPointCloud (const PointCloudP
     (*view_graph_)[v].pose_ = Eigen::DualQuaternion<Scalar> ();//Vector6::Zero ();
     return (v);
   }
+  Vector6 p = pose;
+  std::cerr << "addPointCloud " << v << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
   (*view_graph_)[v].pose_ = Eigen::DualQuaternion<Scalar> (pcl::getTransformation (pose (0), pose (1), pose (2), pose (3), pose (4), pose (5)).matrix());
+
+  Affine3 new_transform = Affine3 ((*view_graph_)[v].pose_.getMatrix ());
+  p = Vector6::Zero ();
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  std::cerr << "addPointCloud " << v << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  std::cerr << "\n";
   return (v);
 }
 
@@ -251,6 +259,15 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 
   Edge e;
   bool present;
+
+  for (int u = 0; u < getNumVertices(); ++u)
+  {
+      Vertex target = u;
+      Vector6 p = getPose (target);
+      std::cerr << target << " ";
+      std::cerr << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  }
+
   for (int v = 1; v < order.size (); ++v)
   {
     Vertex target = order[v];
@@ -259,6 +276,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
       std::cerr << "Continuing " << target << "\n";
       //continue;
     }
+
     for (int u = 0; u < v; ++u)
     {
       Vertex source = order[u];
@@ -269,11 +287,13 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
         (*view_graph_)[target].pose_ = Eigen::DualQuaternion<Scalar> (new_transform.matrix ());
         Vector6 p = getPose (target);
         std::cerr << source << " " << target << "\n";
-        std::cerr << p(0) << p(1) << p(2) << p(3) << p(4) << p(5) << "\n";
+        std::cerr << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
         break;
       }
     }
   }
+
+  getFitnessScore ();
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
   // Iterate for diffusion_iterations_ times
@@ -333,6 +353,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
       std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : STE " << ste << "\n";
     }
   }
+  std::cerr << "\n";
   return std::sqrt(ste);
 }
 

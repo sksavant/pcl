@@ -110,10 +110,23 @@ Eigen::DualQuaternion<Scalar>::normalize ()
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Matrix4S
 Eigen::DualQuaternion<Scalar>::getMatrix ()
 {
-  Eigen::Transform<Scalar, 3, Eigen::Affine> transform;
-  transform.rotate (qr);
-  transform.translate (getTranslation ());
-  return transform.matrix ();
+  Matrix4S transform_matrix;
+  //Eigen::Transform<Scalar, 3, Eigen::Affine> transform;
+  //transform.translate (getTranslation ());
+  //transform.rotate (qr);
+  Eigen::Matrix<Scalar, 3, 3> rot_matrix = qr.matrix ();
+  Vector3S translation = getTranslation ();
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      transform_matrix (i, j) = rot_matrix (i, j);
+    }
+    transform_matrix (3, i) = 0;
+    transform_matrix (i, 3) = translation (i);
+  }
+  transform_matrix (3, 3) = 0;
+  return (transform_matrix) ;
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Vector3S
