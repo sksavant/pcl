@@ -85,14 +85,28 @@ Eigen::DualQuaternion<Scalar>::DualQuaternion (const Matrix4S &tm)
 template<typename Scalar> void
 Eigen::DualQuaternion<Scalar>::normalize ()
 {
-  Scalar sign = 1;
-  qr.normalize ();
+  Scalar sign = 1.0;
+  if (qr.w () < 0)
+  {
+    sign = -1.0;
+  }
+  Scalar norm = qr.norm () * sign;
+  /*
+  //Scalar sign = 1;
+  //qr.normalize ();
   if (qr.w () < 0)
   {
     qr = QuaternionS (-qr.w (), -qr.x (), -qr.y (), -qr.z ());
   }
   Scalar norm = qr.norm () * sign;
+  */
   // TODO : Check norm==0?
+
+  qr.w () = qr.w () / norm;
+  qr.x () = qr.x () / norm;
+  qr.y () = qr.y () / norm;
+  qr.z () = qr.z () / norm;
+
 
   qd.w () = qd.w () / norm;
   qd.x () = qd.x () / norm;
@@ -101,10 +115,10 @@ Eigen::DualQuaternion<Scalar>::normalize ()
 
   Scalar dot_rd = qr.dot (qd);
 
-  qd.w () = qd.w () + qr.w () * (-dot_rd);
-  qd.x () = qd.x () + qr.x () * (-dot_rd);
-  qd.y () = qd.y () + qr.y () * (-dot_rd);
-  qd.z () = qd.z () + qr.z () * (-dot_rd);
+  qd.w () = qd.w () + (qr.w () * (-dot_rd));
+  qd.x () = qd.x () + (qr.x () * (-dot_rd));
+  qd.y () = qd.y () + (qr.y () * (-dot_rd));
+  qd.z () = qd.z () + (qr.z () * (-dot_rd));
 }
 
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>::Matrix4S
@@ -258,11 +272,29 @@ Eigen::DualQuaternion<Scalar>::log ()
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::exp ()
 {
-  Eigen::DualQuaternion<Scalar> res;
+  const Scalar dq_epsilon = 1e-8;
 
+  Eigen::DualQuaternion<Scalar> res;
   res.real () = qr;
   res.dual () = qd;
+
   const Scalar h0 = 2.0 * res.real ().norm ();
+
+  if (h0 * h0 < dq_epsilon)
+  {
+    res.real ().w () = 1.0;
+    res.real ().x () = res.real ().x () * 2.0;
+    res.real ().y () = res.real ().y () * 2.0;
+    res.real ().z () = res.real ().z () * 2.0;
+
+    res.dual ().w () = res.dual ().w () * 2.0;
+    res.dual ().x () = res.dual ().x () * 2.0;
+    res.dual ().y () = res.dual ().y () * 2.0;
+    res.dual ().z () = res.dual ().z () * 2.0;
+
+    res.normalize ();
+    return (res);
+  }
 
   const Scalar he = 4.0 * res.real ().dot (res.dual ()) / h0;
   const Scalar sh0 = sin (h0);
