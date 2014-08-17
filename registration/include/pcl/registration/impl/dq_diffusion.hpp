@@ -201,14 +201,37 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getTransformation (const Vertex 
   return ((*view_graph_)[vertex].pose_. getMatrix ());
 }
 
+// DEBUG
+template<typename Scalar>
+void printDQ (Eigen::DualQuaternion<Scalar> q, std::string id = "")
+{
+  Eigen::Quaternion<Scalar> t = q.real ();
+  std::cerr << id << ": " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << " ";
+  t = q.dual ();
+  std::cerr << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+}
+
 template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
 {
+  // TODO remove
+  //diffusion_iterations_ = 1;
   for (int rep = 0; rep != diffusion_iterations_; ++rep)
   {
+    std::cerr << rep << " " << getFitnessScore () << "\n";
     typename ViewGraph::vertex_iterator v, v_end;
     typename ViewGraph::out_edge_iterator e, e_end;
-    std::vector<Eigen::DualQuaternion<Scalar> > q2 (getNumVertices ()); //vector of Q of each pose?
+    std::vector<Eigen::DualQuaternion<Scalar> > q2 (getNumVertices (), Eigen::DualQuaternion<Scalar> (0.0)); //vector of Q of each pose?
+
+    /*
+    // Debug
+    for (int i=0; i<getNumVertices (); ++i)
+    {
+      printDQ<Scalar> (q2[i], "");
+    }
+    // Debug
+    */
+
     for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
     {
       Vertex source_v = (*v);
@@ -223,7 +246,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
 
         q2[source_v] = q2[source_v] + (qi * w);
         //q2 = q2 + qi * w;
-        std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
+        //std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
       }
       q2[source_v].normalize ();
     }
@@ -231,6 +254,21 @@ pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
     {
       Vertex source_v = (*v);
       (*view_graph_)[source_v].pose_ = q2[source_v];
+
+      /*
+      //Debug
+  Eigen::DualQuaternion<Scalar> q = (*view_graph_)[source_v].pose_;
+  Affine3 new_transform = Affine3 (q.getMatrix ());
+  Eigen::Quaternion<Scalar> t = q.real ();
+  Vector6 p = Vector6::Zero ();
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  //std::cerr << "linearDiffusion: q " << source_v << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  std::cerr << "linearDiffusion: q.real() " << source_v << ": " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+  t = q.dual ();
+  std::cerr << "linearDiffusion: q.dual() " << source_v << ": " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+      // Debug
+      */
+
     }
   }
   Vertex start = 0;
@@ -277,8 +315,8 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
   // Use transformations from 0 to estimate the pose.
   // Question : Use intermediate pose estimates?
   // Issue : More than one connected components : No transformation from 0 to some vetices : Handle it?
-  // TODO=
 
+  /* TODO : use bfs
   std::vector<int> order;
   boost::bfs_order_visitor vis  = boost::bfs_order_visitor(order);
   boost::breadth_first_search(*view_graph_, vertex(0, *view_graph_), boost::visitor(vis));
@@ -286,7 +324,6 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
 
   // order.size() should be same as num_vertices
   // int num_vertices = getNumVertices();
-
   Edge e;
   bool present;
 
@@ -321,6 +358,40 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
         break;
       }
     }
+  }
+  */
+
+  int n = getNumVertices ();
+  std::vector<int> view_stack (1,0);
+  std::vector<char> view_visited(n,0);
+
+  view_visited[0]=1;
+  //std::vector<dual_quaternion> Q(n);
+  int stack_pos=0;
+  while (stack_pos != (int)view_stack.size())
+  {
+    Vertex cur_view = view_stack[stack_pos];
+    typename ViewGraph::out_edge_iterator e, e_end;
+    for (boost::tuples::tie (e, e_end) = out_edges (cur_view, *view_graph_); e != e_end; ++e)
+    {
+      Edge e_edge = (*e);
+      Vertex target_v = boost::target (e_edge, *view_graph_);
+      if (!view_visited[target_v])
+      {
+        view_stack.push_back(target_v);
+        view_visited[target_v]=1;
+        //std::cerr << cur_view << " -> " << target_v << " <=> " << std::endl;// << Q[cur_view] << " * " << iter->second << " = " << iter->second * Q[cur_view] << std::endl;
+        //Q[iter->first] = ( iter->second * Q[cur_view] ).normalize();
+        (*view_graph_)[target_v].pose_ = getPairwiseTransformation (e_edge, cur_view, target_v) * (*view_graph_)[cur_view].pose_;
+        (*view_graph_)[target_v].pose_.normalize ();
+      }
+    }
+    ++stack_pos;
+  }
+  if (stack_pos!=n)
+  {
+    std::cerr << "view graph not connected\n";
+    throw std::runtime_error("view graph not connected in void pcl::registration::DQDiffusion::compute()");
   }
 
   std::cerr << getFitnessScore () << "\n";
@@ -378,7 +449,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
 
       q.normalize ();
 
-      // DEBUG
+      /*// DEBUG
   Affine3 new_transform = Affine3 (q_e.getMatrix ());
   Eigen::Quaternion<Scalar> t = q_e.real ();
   Vector6 p = Vector6::Zero ();
@@ -396,9 +467,11 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
   t = q.dual ();
   std::cerr << "getFitnessScore: qbl.dual() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
       // DEBUG
+      // */
 
       q = q.log ();
 
+      /*
       // DEBUG
   new_transform = Affine3 (q.getMatrix ());
   pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
@@ -408,17 +481,16 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
   t = q.dual ();
   std::cerr << "getFitnessScore: qal.dual() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
       // DEBUG
+      */
 
       Scalar edge_ste = q.dot(q)*((*view_graph_)[(*e)].weight_);
 
       ste += edge_ste;
-      //Eigen::DualQuaternion<Scalar> q = ((q_e.conjuate ())*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
-      //Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
-      std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : CST " << edge_ste << " : STE " << ste << "\n";
+
+      //std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : CST " << edge_ste << " : STE " << ste << "\n";
 
     }
   }
-  std::cerr << "\n";
   return std::sqrt(ste);
 }
 

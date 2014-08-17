@@ -58,8 +58,8 @@ namespace Eigen{
 
       EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-      DualQuaternion ()
-        : qr(QuaternionS(1,0,0,0))
+      DualQuaternion (Scalar v  = 1.0)
+        : qr(QuaternionS(v,0,0,0))
         , qd(QuaternionS(0,0,0,0))
       {
       }

@@ -208,7 +208,6 @@ Eigen::DualQuaternion<Scalar>::log ()
   res.dual () = qd;
 
   const Scalar h0 = std::acos (res.real ().w ());
-  std::cerr << "h0 " << h0 << "\n";
 
   if (h0*h0  < dq_epsilon)
   {
