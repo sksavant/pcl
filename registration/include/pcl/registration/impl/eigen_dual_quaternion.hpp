@@ -200,12 +200,30 @@ Eigen::DualQuaternion<Scalar>::conjugate ()
 template<typename Scalar> inline typename Eigen::DualQuaternion<Scalar>
 Eigen::DualQuaternion<Scalar>::log ()
 {
+  const Scalar dq_epsilon = 1e-8;
   // Small angle assumption TODO
-  Eigen::DualQuaternion<Scalar> res;
   // Unitary?
-  const Scalar h0 = std::acos (res.real ().w ());
+  Eigen::DualQuaternion<Scalar> res;
   res.real () = qr;
   res.dual () = qd;
+
+  const Scalar h0 = std::acos (res.real ().w ());
+  std::cerr << "h0 " << h0 << "\n";
+
+  if (h0*h0  < dq_epsilon)
+  {
+    res.real ().w () = 0.0;
+    res.real ().x () = res.real ().x () * 0.5;
+    res.real ().y () = res.real ().y () * 0.5;
+    res.real ().z () = res.real ().z () * 0.5;
+
+    res.dual ().w () = 0.0;
+    res.dual ().x () = res.dual ().x () * 0.5;
+    res.dual ().y () = res.dual ().y () * 0.5;
+    res.dual ().z () = res.dual ().z () * 0.5;
+
+    return (res);
+  }
 
   res.real ().w () = 0.0;
   const Scalar ish0 = 1.0 / res.real ().norm ();

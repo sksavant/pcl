@@ -116,18 +116,19 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
   Edge e;
   bool present;
   Vertex source_vertex, target_vertex;
-  Matrix4 edge_transformation;
+  Eigen::DualQuaternion<Scalar> edge_transformation;
   if (from_vertex < to_vertex)
   {
     source_vertex = from_vertex;
     target_vertex = to_vertex;
-    edge_transformation = transformation;
+    edge_transformation = Eigen::DualQuaternion<Scalar> (transformation);
   }
   else
   {
     source_vertex = to_vertex;
     target_vertex = from_vertex;
-    edge_transformation = (Affine3 (transformation)).inverse (Eigen::Affine).matrix ();
+    edge_transformation = Eigen::DualQuaternion<Scalar> (transformation).conjugate ();
+    //edge_transformation = (Affine3 (transformation)).inverse (Eigen::Affine).matrix ();
   }
   boost::tuples::tie (e, present) = edge (source_vertex, target_vertex, *view_graph_);
   if (!present)
@@ -140,7 +141,14 @@ pcl::registration::DQDiffusion<PointT, Scalar>::addPairwiseTransformation (const
     (*view_graph_)[source_vertex].weight_sum_ -= current_weight;
     (*view_graph_)[target_vertex].weight_sum_ -= current_weight;
   }
-  (*view_graph_)[e].pairwise_transform_ = Eigen::DualQuaternion<Scalar> (edge_transformation);
+  (*view_graph_)[e].pairwise_transform_ = edge_transformation;
+
+  // DEBUG
+  Affine3 new_transform = Affine3 ((*view_graph_)[e].pairwise_transform_.getMatrix ());
+  Vector6 p = Vector6::Zero ();
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  std::cerr << "addPairwiseTransformation " << e << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+
   (*view_graph_)[e].weight_ = weight;
   (*view_graph_)[source_vertex].weight_sum_ += weight;
   (*view_graph_)[target_vertex].weight_sum_ += weight;
@@ -232,7 +240,8 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getPairwiseTransformation (Edge 
   }
   else
   {
-    return Eigen::DualQuaternion<Scalar> ((Affine3 ((*view_graph_)[e].pairwise_transform_.getMatrix ())).inverse (Eigen::Affine).matrix ());
+    return (*view_graph_)[e].pairwise_transform_.conjugate ();
+    //return Eigen::DualQuaternion<Scalar> ((Affine3 ((*view_graph_)[e].pairwise_transform_.getMatrix ())).inverse (Eigen::Affine).matrix ());
 
   }
 
@@ -293,7 +302,7 @@ pcl::registration::DQDiffusion<PointT, Scalar>::compute ()
     }
   }
 
-  getFitnessScore ();
+  std::cerr << getFitnessScore () << "\n";
 
   // Apply dual quaternion average (DLB/DIB) on the graph pose estimates
   // Iterate for diffusion_iterations_ times
@@ -333,7 +342,7 @@ template<typename PointT, typename Scalar> inline Scalar
 pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
 {
   // TODO RMS error same as rmste() in demo code
-  double ste = 0.0;
+  Scalar ste = 0.0;
   typename ViewGraph::vertex_iterator v, v_end;
   typename ViewGraph::out_edge_iterator e, e_end;
   for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
@@ -344,13 +353,25 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
       Vertex source_v = (*v);
       Vertex target_v = boost::target ((*e), (*view_graph_));
       Eigen::DualQuaternion<Scalar> q_e = getPairwiseTransformation (e_edge, source_v, target_v);
-      Eigen::DualQuaternion<Scalar> q = (q_e.conjugate () * (*view_graph_)[target (*e, *view_graph_)].pose_ * (*view_graph_)[(*v)].pose_.conjugate ());
+      Eigen::DualQuaternion<Scalar> q = (q_e.conjugate () * (*view_graph_)[target_v].pose_) * (*view_graph_)[source_v].pose_.conjugate ();
+
       q.normalize ();
+
       q = q.log ();
-      ste += q.dot(q)*((*view_graph_)[(*e)].weight_);
+      // DEBUG
+  Affine3 new_transform = Affine3 (q.getMatrix ());
+  Vector6 p = Vector6::Zero ();
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  std::cerr << "getFitnessScore " << e_edge << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+      // DEBUG
+
+      Scalar edge_ste = q.dot(q)*((*view_graph_)[(*e)].weight_);
+
+      ste += edge_ste;
       //Eigen::DualQuaternion<Scalar> q = ((q_e.conjuate ())*(*view_graph_)[(*e)].target ()*!(*view_graph_)[(*v)].pose_).normalize();
       //Eigen::DualQuaternion<Scalar> q = ((q_e.conjugate ())*(*view_graph_)[(*e)].diffused_transform_*(*view_graph_)[(*e)].diffused_transform_.conjugate ());
-      std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : STE " << ste << "\n";
+      std::cerr << "Vertex 0x10 " << *v << " : Edge " << *e << " : CST " << edge_ste << " : STE " << ste << "\n";
+
     }
   }
   std::cerr << "\n";
