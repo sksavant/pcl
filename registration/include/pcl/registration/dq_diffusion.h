@@ -103,6 +103,7 @@ namespace pcl
           : view_graph_ (new ViewGraph)
           , linear_approximation_ (false)
           , diffusion_iterations_(1000)
+          , average_iterations_(4)
         {
         }
 
@@ -114,6 +115,9 @@ namespace pcl
 
         void
         setDiffusionIterations (int diffusion_iterations);
+
+        void
+        setAverageIterations (int average_iterations);
 
         inline int
         getDiffusionIterations () const;
@@ -170,6 +174,7 @@ namespace pcl
 
         bool linear_approximation_;
         int diffusion_iterations_;
+        int average_iterations_;
     };
   }
 }

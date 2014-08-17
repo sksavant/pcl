@@ -58,6 +58,12 @@ pcl::registration::DQDiffusion<PointT, Scalar>::setDiffusionIterations (int diff
   diffusion_iterations_ = diffusion_iterations;
 }
 
+template<typename PointT, typename Scalar> void
+pcl::registration::DQDiffusion<PointT, Scalar>::setAverageIterations (int average_iterations)
+{
+  average_iterations_ = average_iterations;
+}
+
 template<typename PointT, typename Scalar> inline int
 pcl::registration::DQDiffusion<PointT, Scalar>::getDiffusionIterations () const
 {
@@ -286,6 +292,68 @@ pcl::registration::DQDiffusion<PointT, Scalar>::linearDiffusion ()
 template<typename PointT, typename Scalar> void
 pcl::registration::DQDiffusion<PointT, Scalar>::manifoldDiffusion ()
 {
+  for (int rep = 0; rep != diffusion_iterations_; ++rep)
+  {
+    std::cerr << rep << " " << getFitnessScore () << "\n";
+    typename ViewGraph::vertex_iterator v, v_end;
+    typename ViewGraph::out_edge_iterator e, e_end;
+    std::vector<Eigen::DualQuaternion<Scalar> > q2 (getNumVertices (), Eigen::DualQuaternion<Scalar> (0.0)); //vector of Q of each pose?
+
+    for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+    {
+      Vertex source_v = (*v);
+      for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
+      {
+        Edge e_edge = (*e);
+        Vertex target_v = boost::target ((*e), (*view_graph_));
+        Eigen::DualQuaternion<Scalar> q_e = getPairwiseTransformation (e_edge, source_v, target_v);
+
+        Eigen::DualQuaternion<Scalar> qi = q_e.conjugate () * (*view_graph_)[target_v].pose_;
+        const Scalar w = copysign(1.0, (*view_graph_)[source_v].pose_.real ().dot (qi.real ())) * (*view_graph_)[e_edge].weight_ / (*view_graph_)[source_v].weight_sum_;
+
+        q2[source_v] = q2[source_v] + (qi * w);
+        //std::cerr << "Vertex " << *v << " : Edge " << *e << "\n";
+      }
+      q2[source_v].normalize ();
+
+      for(int avg_rep = 0; avg_rep != average_iterations_; ++avg_rep)
+      {
+        Eigen::DualQuaternion<Scalar> log_mean (0.0);
+        for (boost::tuples::tie (e, e_end) = out_edges (*v, *view_graph_); e != e_end; ++e)
+        {
+          Edge e_edge = (*e);
+          Vertex target_v = boost::target ((*e), (*view_graph_));
+          Eigen::DualQuaternion<Scalar> q_e = getPairwiseTransformation (e_edge, source_v, target_v);
+
+          Eigen::DualQuaternion<Scalar> qi = q_e.conjugate () * (*view_graph_)[target_v].pose_ * q2[source_v].conjugate ();
+          qi.normalize ();
+          qi = qi * copysign(1.0, qi.real ().w ());
+          qi = qi.log ();
+          qi = qi * (*view_graph_)[e_edge].weight_;
+          log_mean = log_mean + qi;
+        }
+        log_mean = log_mean * (1.0/ (*view_graph_)[source_v].weight_sum_);
+        q2[source_v] = (log_mean.exp ()) * q2[source_v];
+        q2[source_v].normalize ();
+      }
+    }
+
+    for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+    {
+      Vertex source_v = (*v);
+      (*view_graph_)[source_v].pose_ = q2[source_v];
+    }
+  }
+
+  Vertex start = 0;
+  Eigen::DualQuaternion<Scalar> st = (*view_graph_)[start].pose_.conjugate ();
+  typename ViewGraph::vertex_iterator v, v_end;
+  for (boost::tuples::tie (v, v_end) = vertices (*view_graph_); v != v_end; ++v)
+  {
+    Vertex v_iter = (*v);
+    (*view_graph_)[v_iter].pose_ = ((*view_graph_)[v_iter].pose_ * st);
+    (*view_graph_)[v_iter].pose_.normalize ();
+  }
 
 }
 
