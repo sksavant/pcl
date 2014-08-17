@@ -357,12 +357,35 @@ pcl::registration::DQDiffusion<PointT, Scalar>::getFitnessScore ()
 
       q.normalize ();
 
-      q = q.log ();
       // DEBUG
-  Affine3 new_transform = Affine3 (q.getMatrix ());
+  Affine3 new_transform = Affine3 (q_e.getMatrix ());
+  Eigen::Quaternion<Scalar> t = q_e.real ();
   Vector6 p = Vector6::Zero ();
   pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
-  std::cerr << "getFitnessScore " << e_edge << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  std::cerr << "getFitnessScore: q_e " << e_edge << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  std::cerr << "getFitnessScore: q_e.real() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+  t = q_e.dual ();
+  std::cerr << "getFitnessScore: q_e.dual() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+
+  new_transform = Affine3 (q.getMatrix ());
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  std::cerr << "getFitnessScore: qbl " << e_edge << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  t = q.real ();
+  std::cerr << "getFitnessScore: qbl.real() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+  t = q.dual ();
+  std::cerr << "getFitnessScore: qbl.dual() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+      // DEBUG
+
+      q = q.log ();
+
+      // DEBUG
+  new_transform = Affine3 (q.getMatrix ());
+  pcl::getTranslationAndEulerAngles (new_transform, p (0), p (1), p (2), p (3), p (4), p (5));
+  std::cerr << "getFitnessScore: qal " << e_edge << " " << p(0) << " " << p(1) << " " << p(2) << " " << p(3) << " " << p(4) << " " << p(5) << "\n";
+  t = q.real ();
+  std::cerr << "getFitnessScore: qal.real() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
+  t = q.dual ();
+  std::cerr << "getFitnessScore: qal.dual() " << e_edge << " " << t.w () << " " << t.x () << " " << t.y () << " " << t.z () << "\n";
       // DEBUG
 
       Scalar edge_ste = q.dot(q)*((*view_graph_)[(*e)].weight_);
