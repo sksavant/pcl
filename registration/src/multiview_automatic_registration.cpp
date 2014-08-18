@@ -43,4 +43,5 @@
 #include <pcl/registration/impl/multiview_automatic_registration.hpp>
 
 
-PCL_INSTANTIATE(MULTIVIEW_REGISTRATION, PCL_XYZ_POINT_TYPES);
+// TODO
+// PCL_INSTANTIATE(MULTIVIEW_REGISTRATION, PCL_XYZ_POINT_TYPES);

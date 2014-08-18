@@ -47,41 +47,41 @@
 #include <pcl/common/transforms.h>
 #include <pcl/registration/boost_graph.h>
 
-namespace Eigen
-{
-  typedef Eigen::Matrix<float, 6, 1> Vector6f;
-  typedef Eigen::Matrix<float, 6, 6> Matrix6f;
-}
-
 namespace pcl
 {
   namespace registration
   {
 
-    template<typename PointT, typename Scalar = float>
+    template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar = float>
     class MultiviewRegistration
     {
       public:
-        typedef boost::shared_ptr<MultiviewRegistration<PointT, Scalar> > Ptr;
-        typedef boost::shared_ptr<const MultiviewRegistration<PointT, Scalar> > ConstPtr;
+        typedef boost::shared_ptr<MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar> > Ptr;
+        typedef boost::shared_ptr<const MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar> > ConstPtr;
 
         typedef pcl::PointCloud<PointT> PointCloud;
         typedef typename PointCloud::Ptr PointCloudPtr;
         typedef typename PointCloud::ConstPtr PointCloudConstPtr;
 
+        typedef Eigen::Matrix<Scalar, 4, 4> Matrix4;
+        typedef Eigen::Matrix<Scalar, 6, 1> Vector6;
+        typedef Eigen::Transform<Scalar, 3, Eigen::Affine> Affine3;
+
         struct VertexProperties
         {
           // TODO
           PointCloudPtr cloud_;
-          Eigen::Vector6f pose_;
+          Vector6 pose_;
+          int index_;
+          Scalar fitness_score_sum_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 
         struct EdgeProperties
         {
-          // TODO
-          Eigen::Matrix6f cinv_;
-          Eigen::Vector6f cinvd_;
+          Matrix4 pairwise_transformation_;
+          Scalar fitness_score_;
+          bool global_flag_;
           EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         };
 
@@ -91,12 +91,32 @@ namespace pcl
         typedef typename ModelGraph::edge_descriptor Edge;
 
         MultiviewRegistration ()
-          : model_graph_ (new ModelGraph)
+          : local_reg_graph_ (new ModelGraph)
+          , global_reg_graph_ (new ModelGraph)
+          , num_iterations_ (100)
         {
         }
 
+        inline Vertex
+        addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose = Vector6::Zero ());
+
+        /*
+        void
+        compute ();
+
+        inline PointCloudPtr
+        getTransformedCloud (const Vertex &vertex) const;
+
+        inline PointCloudPtr
+        getConcatenatedCloud () const;
+        */
+
       private:
-        ModelGraphPtr model_graph_;
+        ModelGraphPtr local_reg_graph_;
+
+        ModelGraphPtr global_reg_graph_;
+
+        int num_iterations_;
 
     };
   }

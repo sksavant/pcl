@@ -38,4 +38,17 @@
  *
  */
 
-#define PCL_INSTANTIATE_MULTIVIEW_REGISTRATION(T) template class PCL_EXPORTS pcl::registration::MultiviewRegistration<T>;
+#define MultiviewRegistrationT  pcl::registration::MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar>
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline typename MultiviewRegistrationT::Vertex
+pcl::registration::MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar>::addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose)
+{
+  Vertex v = add_vertex (*local_reg_graph_);
+  (*local_reg_graph_)[v].cloud_ = cloud;
+  (*local_reg_graph_)[v].pose_ = pose;
+  (*local_reg_graph_)[v].index_ = (int) v;
+  return (v);
+}
+
+//TODO
+//#define PCL_INSTANTIATE_MULTIVIEW_REGISTRATION(T) template class PCL_EXPORTS pcl::registration::MultiviewRegistration<T>;
