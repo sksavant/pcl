@@ -100,8 +100,7 @@ namespace pcl
         inline Vertex
         addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose = Vector6::Zero ());
 
-        /*
-        void
+        inline void
         compute ();
 
         inline PointCloudPtr
@@ -109,7 +108,6 @@ namespace pcl
 
         inline PointCloudPtr
         getConcatenatedCloud () const;
-        */
 
       private:
         ModelGraphPtr local_reg_graph_;

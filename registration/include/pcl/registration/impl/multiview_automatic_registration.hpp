@@ -38,10 +38,13 @@
  *
  */
 
+#ifndef PCL_REGISTATION_IMPL_MULTIVIEW_AUTOMATIC_REGISTATION_HPP_
+#define PCL_REGISTATION_IMPL_MULTIVIEW_AUTOMATIC_REGISTATION_HPP_
+
 #define MultiviewRegistrationT  pcl::registration::MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar>
 
 template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline typename MultiviewRegistrationT::Vertex
-pcl::registration::MultiviewRegistration<PointT, LocalRegistration, GraphRegistration, Scalar>::addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose)
+MultiviewRegistrationT::addPointCloud (const PointCloudPtr &cloud, const Vector6 &pose)
 {
   Vertex v = add_vertex (*local_reg_graph_);
   (*local_reg_graph_)[v].cloud_ = cloud;
@@ -50,5 +53,29 @@ pcl::registration::MultiviewRegistration<PointT, LocalRegistration, GraphRegistr
   return (v);
 }
 
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline void
+MultiviewRegistrationT::compute ()
+{
+  
+}
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline typename MultiviewRegistrationT::PointCloudPtr
+MultiviewRegistrationT::getTransformedCloud (const Vertex &vertex) const
+{
+  PointCloudPtr pc (new PointCloud);
+
+  return pc;
+}
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline typename MultiviewRegistrationT::PointCloudPtr
+MultiviewRegistrationT::getConcatenatedCloud () const
+{
+  PointCloudPtr pc (new PointCloud);
+
+  return pc;
+}
+
 //TODO
 //#define PCL_INSTANTIATE_MULTIVIEW_REGISTRATION(T) template class PCL_EXPORTS pcl::registration::MultiviewRegistration<T>;
+
+#endif //PCL_REGISTATION_IMPL_MULTIVIEW_AUTOMATIC_REGISTATION_HPP_
