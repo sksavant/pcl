@@ -109,6 +109,16 @@ namespace pcl
         inline PointCloudPtr
         getConcatenatedCloud () const;
 
+      protected:
+        inline void
+        localRegistration ();
+
+        inline void
+        buildLRGraph ();
+
+        inline void
+        globalRegistration ();
+
       private:
         ModelGraphPtr local_reg_graph_;
 

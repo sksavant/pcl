@@ -56,7 +56,9 @@ MultiviewRegistrationT::addPointCloud (const PointCloudPtr &cloud, const Vector6
 template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline void
 MultiviewRegistrationT::compute ()
 {
-  
+  localRegistration ();
+  buildLRGraph ();
+  globalRegistration ();
 }
 
 template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline typename MultiviewRegistrationT::PointCloudPtr
@@ -73,6 +75,40 @@ MultiviewRegistrationT::getConcatenatedCloud () const
   PointCloudPtr pc (new PointCloud);
 
   return pc;
+}
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline void
+MultiviewRegistrationT::localRegistration ()
+{
+  int num_v = num_vertices (*local_reg_graph_);
+  for (int source = 0; source < num_v; ++source)
+  {
+    Vertex source_v = source;
+    PointCloud source_cloud = (*local_reg_graph_)[source_v].cloud_;
+    for (int target = source + 1; target < num_v; ++ target)
+    {
+      Vertex target_v = target;
+      PointCloud target_cloud = (*local_reg_graph_)[target_v].cloud_;
+      LocalRegistration reg;
+      reg.setInputCloud (source_cloud);
+      reg.setInputTarget (target_cloud);
+      PointCloud temp_final;
+      reg.align (temp_final);
+      reg.getFitnessScore ();
+    }
+  }
+}
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline void
+MultiviewRegistrationT::buildLRGraph ()
+{
+
+}
+
+template<typename PointT, typename LocalRegistration, typename GraphRegistration, typename Scalar> inline void
+MultiviewRegistrationT::globalRegistration ()
+{
+
 }
 
 //TODO
